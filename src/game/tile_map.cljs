@@ -8,19 +8,29 @@
   {:type :WALL})
 
 (defn blank []
-  {:type :EMPTY})
+  {:type :BLANK})
 
 (def game-map
-  {:size 5
-   :values [(wall) (wall)  (wall)  (wall)  (wall)
-            (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (wall)
-            (wall) (wall)  (wall)  (wall)  (wall)]})
+  {:size 15
+   :values [(wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (blank) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (blank) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+            (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)]})
 
 (defn render-tile [tile x y h w]
   (let [colors  {:WALL "black"
-                 :EMPTY "white"}]
+                 :BLANK "white"}]
     (canvas/draw-rect x y h w ((:type tile) colors))))
 
 (defn render-map []
@@ -31,3 +41,6 @@
      (* (Math/floor (/ i (:size game-map))) TILE-SIZE)
      TILE-SIZE
      TILE-SIZE)))
+
+(defn get-tile [x y]
+  (get (:values game-map) (+ x (* (:size game-map) y))))
