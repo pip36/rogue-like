@@ -1,15 +1,17 @@
 (ns game.core
   (:require
    [game.canvas :as canvas]
-   [game.tile-map :as m]
+   [game.tile-map :as tm]
    [game.player :as p]
    [game.input :as i]
-   [game.ai :as ai]))
+   [game.ai :as ai]
+   [game.monster :as m]))
 
 (defn render []
   (canvas/clear)
-  (m/render-map)
-  (p/render-player))
+  (tm/render-map)
+  (p/render-player)
+  (m/render-monster))
 
 (defn register-input-listener []
   (set! (. js/document -onkeydown)
