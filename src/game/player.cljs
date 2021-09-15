@@ -22,3 +22,7 @@
    (* m/TILE-SIZE (:y @player))
    m/TILE-SIZE m/TILE-SIZE
    "green"))
+
+;; HELPERS
+(defn player-at? [x y]
+  (and (= x (:x @player)) (= y (:y @player))))

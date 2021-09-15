@@ -2,7 +2,8 @@
   (:require
    [game.player :as p]
    [game.actions :as a]
-   [game.tile-map :as tm]))
+   [game.tile-map :as tm]
+   [game.monsters.core :as m]))
 
 (def input-keys {38 :UP
                  40 :DOWN
@@ -13,8 +14,11 @@
   [(+ (:x @p/player) x) (+ (:y @p/player) y)])
 
 (defn try-move [[x y]]
-  (when (tm/is? :BLANK x y)
-    (a/trigger-actions  [(p/move-player x y)])))
+  (let [monster? (m/get-monster-at x y)]
+    (cond
+      monster? nil
+      (tm/is? :BLANK x y) (a/trigger-actions  [(p/move-player x y)])
+      :else nil)))
 
 (defn handle-user-update [key]
   (case key
