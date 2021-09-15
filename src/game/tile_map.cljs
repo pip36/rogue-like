@@ -44,3 +44,6 @@
 
 (defn get-tile [x y]
   (get (:values game-map) (+ x (* (:size game-map) y))))
+
+(defn is? [type x y]
+  (= (:type (get-tile x y)) type))

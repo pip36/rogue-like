@@ -5,13 +5,13 @@
    [game.player :as p]
    [game.input :as i]
    [game.ai :as ai]
-   [game.monster :as m]))
+   [game.monsters.core :as m]))
 
 (defn render []
   (canvas/clear)
   (tm/render-map)
   (p/render-player)
-  (m/render-monster))
+  (m/render-monsters))
 
 (defn register-input-listener []
   (set! (. js/document -onkeydown)

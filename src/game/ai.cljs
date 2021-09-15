@@ -1,15 +1,17 @@
 (ns game.ai
   (:require
    [game.actions :as a]
-   [game.tile-map :as tm]
-   [game.monster :as m]))
+   [game.monsters.core :as m]))
 
-(defn try-move [[x y]]
-  (when (= (:type (tm/get-tile x y)) :BLANK)
-    (a/trigger-actions  [(a/move-monster x y)])))
+(defn update-monsters
+  "Loop through all monsters and trigger their movement function."
+  []
+  (doseq [[id monster] (seq @m/monsters)]
+    (let [movement (:movement monster)
+          [x y] (movement monster)]
+      (a/trigger-actions [(m/move-monster id x y)]))))
 
-(defn new-position [x y]
-  [(+ (:x @m/monster) x) (+ (:y @m/monster) y)])
-
-(defn handle-ai-update []
-  (a/trigger-actions [(try-move (new-position (dec (rand-int 3)) (dec (rand-int 3))))]))
+(defn handle-ai-update
+  "Update state for everything not directly controlled by the player."
+  []
+  (update-monsters))

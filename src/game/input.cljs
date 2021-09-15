@@ -2,7 +2,7 @@
   (:require
    [game.player :as p]
    [game.actions :as a]
-   [game.tile-map :as m]))
+   [game.tile-map :as tm]))
 
 (def input-keys {38 :UP
                  40 :DOWN
@@ -13,8 +13,8 @@
   [(+ (:x @p/player) x) (+ (:y @p/player) y)])
 
 (defn try-move [[x y]]
-  (when (= (:type (m/get-tile x y)) :BLANK)
-    (a/trigger-actions  [(a/move-player x y)])))
+  (when (tm/is? :BLANK x y)
+    (a/trigger-actions  [(p/move-player x y)])))
 
 (defn handle-user-update [key]
   (case key
@@ -23,6 +23,3 @@
     :LEFT (try-move (new-position -1 0))
     :RIGHT (try-move (new-position 1 0))
     :default nil))
-
-(comment
-  (m/get-tile 1 0))
