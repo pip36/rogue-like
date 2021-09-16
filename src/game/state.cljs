@@ -78,39 +78,27 @@
 
 
 ;;;; State Mutations
-(defn kill-monster [id]
-  (swap! monsters dissoc id))
+(defn move-player [x y]
+  (swap! player conj {:x x
+                      :y y}))
 
-(defn hurt-monster [id amount]
-  (swap! monsters update-in [id :health] - amount))
+(defn kill-monster [monster-id]
+  (swap! monsters dissoc monster-id))
 
-(defmulti handle :type)
+(defn hurt-monster [monster-id amount]
+  (swap! monsters update-in [monster-id :health] - amount))
 
-(defmethod handle :default [action]
-  (. js/console error "No action handler defined for: " (:type action)))
+(defn move-monster [monster-id x y]
+  (swap! monsters conj {monster-id (merge (get @monsters monster-id) {:x x
+                                                                      :y y})}))
 
-(defn move-monster [id x y]
-  {:type :MOVE_MONSTER :payload {:id id :x x :y y}})
-
-(defmethod handle :MOVE_MONSTER [action]
-  (swap! monsters conj {(-> action :payload :id) (merge (get @monsters (-> action :payload :id)) {:x (-> action :payload :x)
-                                                                                                  :y (-> action :payload :y)})}))
-(defn attack-monster [id]
-  {:type :ATTACK_MONSTER :payload {:id id}})
-
-(defmethod handle :ATTACK_MONSTER [action]
-  (let [monster_id (-> action :payload :id)
-        monster_health (-> @monsters monster_id :health)
+(defn attack-monster [monster-id]
+  (let [monster-health (-> @monsters monster-id :health)
         damage 5
-        new_health (- monster_health damage)]
+        new-health (- monster-health damage)]
     (cond
-      (<= new_health 0) (kill-monster monster_id)
-      :else (hurt-monster monster_id damage))
-    (. js/console log "Attacking" monster_id monster_health new_health)))
-
-(defn trigger-actions [actions-list]
-  (doseq [action actions-list]
-    (handle action)))
+      (<= new-health 0) (kill-monster monster-id)
+      :else (hurt-monster monster-id damage))))
 
 ;;;; Logic
 (defn update-monsters
@@ -118,22 +106,16 @@
   []
   (doseq [[id monster] (seq @monsters)]
     (let [[x y] (movement monster)]
-      (trigger-actions [(move-monster id x y)]))))
+      (move-monster id x y))))
 
 (defn new-position [x y]
   [(+ (:x @player) x) (+ (:y @player) y)])
 
-(defn move-player [x y] {:type :MOVE_PLAYER :payload {:x x :y y}})
-
-(defmethod handle :MOVE_PLAYER [action]
-  (swap! player conj {:x (-> action :payload :x)
-                      :y (-> action :payload :y)}))
-
 (defn try-move [[x y]]
   (let [monster (get-monster-at x y)]
     (cond
-      (some? monster) (trigger-actions [(attack-monster (:id monster))])
-      (tile-is? :BLANK x y) (trigger-actions  [(move-player x y)])
+      (some? monster) (attack-monster (:id monster))
+      (tile-is? :BLANK x y) (move-player x y)
       :else nil)))
 
 ;;; INPUT
