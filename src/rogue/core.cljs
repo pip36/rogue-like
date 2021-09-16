@@ -3,7 +3,7 @@
    [reagent.core :as r]
    [reagent.dom :as d]
    [game.core :as g]
-   [game.canvas :as canvas]))
+   [game.config :as config]))
 
 (defn game
   []
@@ -15,9 +15,9 @@
 
     :reagent-render
     (fn []
-      [:canvas {:id canvas/ID
-                :width canvas/WIDTH
-                :height canvas/HEIGHT
+      [:canvas {:id config/CANVAS-ID
+                :width config/CANVAS-HEIGHT
+                :height config/CANVAS-WIDTH
                 :style {:border "1px solid black"}}])}))
 
 (defn mount-root []

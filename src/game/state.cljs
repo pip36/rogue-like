@@ -1,7 +1,6 @@
 (ns game.state
-  (:require [game.canvas :as canvas]))
-
-(def TILE-SIZE 16)
+  (:require [game.canvas :as canvas]
+            [game.config :as config]))
 
 (defn wall []
   {:type :WALL})
@@ -80,9 +79,9 @@
 
 (defn render-monster [monster]
   (canvas/draw-rect
-   (* TILE-SIZE (:x monster))
-   (* TILE-SIZE (:y monster))
-   TILE-SIZE TILE-SIZE
+   (* config/TILE-SIZE (:x monster))
+   (* config/TILE-SIZE (:y monster))
+   config/TILE-SIZE config/TILE-SIZE
    (:color monster)))
 
 
@@ -140,9 +139,9 @@
 
 (defn render-player []
   (canvas/draw-rect
-   (* TILE-SIZE (:x @player))
-   (* TILE-SIZE (:y @player))
-   TILE-SIZE TILE-SIZE
+   (* config/TILE-SIZE (:x @player))
+   (* config/TILE-SIZE (:y @player))
+   config/TILE-SIZE config/TILE-SIZE
    "green"))
 
 
@@ -156,10 +155,10 @@
   (doseq [[i x] (map-indexed vector (:values game-map))]
     (render-tile
      x
-     (* (mod i (:size game-map)) TILE-SIZE)
-     (* (Math/floor (/ i (:size game-map))) TILE-SIZE)
-     TILE-SIZE
-     TILE-SIZE)))
+     (* (mod i (:size game-map)) config/TILE-SIZE)
+     (* (Math/floor (/ i (:size game-map))) config/TILE-SIZE)
+     config/TILE-SIZE
+     config/TILE-SIZE)))
 
 (defn try-move [[x y]]
   (let [monster? (get-monster-at x y)]
