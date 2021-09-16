@@ -34,6 +34,8 @@
 
 (def monsters (r/atom  {}))
 
+(def events (r/atom '()))
+
 (defn create-statue [statue-data]
   (merge statue-data config/statue))
 
@@ -80,12 +82,16 @@
 
 
 ;;;; State Mutations
+(defn add-event [text]
+  (swap! events conj text))
+
 (defn move-player [x y]
   (swap! player conj {:x x
                       :y y}))
 
 (defn kill-monster [monster-id]
-  (swap! monsters dissoc monster-id))
+  (swap! monsters dissoc monster-id)
+  (add-event "Player killed monster"))
 
 (defn hurt-monster [monster-id amount]
   (swap! monsters update-in [monster-id :health] - amount))
@@ -98,6 +104,7 @@
   (let [monster-health (-> @monsters monster-id :health)
         damage 5
         new-health (- monster-health damage)]
+    (add-event "Player attacked monster")
     (cond
       (<= new-health 0) (kill-monster monster-id)
       :else (hurt-monster monster-id damage))))

@@ -8,6 +8,10 @@
 
 (defn stats []
   [:div#stats
+   [:p "Events"]
+   (for [event @state/events]
+     [:p event])
+   [:p "------------------------------------------------"]
    [:p "Player: " @state/player]
    (for [monster (state/all-monsters)]
      [:p "Monster: " monster])])
@@ -23,10 +27,11 @@
     :reagent-render
     (fn []
       [:div#container
-       [:canvas {:id config/CANVAS-ID
-                 :width config/CANVAS-HEIGHT
-                 :height config/CANVAS-WIDTH
-                 :style {:border "1px solid black"}}]
+       [:div
+        [:canvas {:id config/CANVAS-ID
+                  :width config/CANVAS-HEIGHT
+                  :height config/CANVAS-WIDTH
+                  :style {:border "1px solid black"}}]]
        [stats]])}))
 
 (defn mount-root []
