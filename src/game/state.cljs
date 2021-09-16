@@ -78,6 +78,12 @@
 
 
 ;;;; State Mutations
+(defn kill-monster [id]
+  (swap! monsters dissoc id))
+
+(defn hurt-monster [id amount]
+  (swap! monsters update-in [id :health] - amount))
+
 (defmulti handle :type)
 
 (defmethod handle :default [action]
@@ -89,6 +95,18 @@
 (defmethod handle :MOVE_MONSTER [action]
   (swap! monsters conj {(-> action :payload :id) (merge (get @monsters (-> action :payload :id)) {:x (-> action :payload :x)
                                                                                                   :y (-> action :payload :y)})}))
+(defn attack-monster [id]
+  {:type :ATTACK_MONSTER :payload {:id id}})
+
+(defmethod handle :ATTACK_MONSTER [action]
+  (let [monster_id (-> action :payload :id)
+        monster_health (-> @monsters monster_id :health)
+        damage 5
+        new_health (- monster_health damage)]
+    (cond
+      (<= new_health 0) (kill-monster monster_id)
+      :else (hurt-monster monster_id damage))
+    (. js/console log "Attacking" monster_id monster_health new_health)))
 
 (defn trigger-actions [actions-list]
   (doseq [action actions-list]
@@ -112,9 +130,9 @@
                       :y (-> action :payload :y)}))
 
 (defn try-move [[x y]]
-  (let [monster? (get-monster-at x y)]
+  (let [monster (get-monster-at x y)]
     (cond
-      monster? nil
+      (some? monster) (trigger-actions [(attack-monster (:id monster))])
       (tile-is? :BLANK x y) (trigger-actions  [(move-player x y)])
       :else nil)))
 

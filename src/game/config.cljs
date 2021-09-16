@@ -14,9 +14,11 @@
 (def jelly
   {:type :JELLY
    :color "darkred"
+   :health 10
    :movement :RANDOM})
 
 (def statue
   {:type :STATUE
    :color "grey"
+   :health 10
    :movement :STATIC})

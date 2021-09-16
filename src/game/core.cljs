@@ -20,10 +20,10 @@
             (render)))))
 
 (defn populate-map []
-  (reset! s/monsters {1 (s/create-jelly {:id 1 :x 13 :y 13})
-                      2 (s/create-jelly {:id 2 :x 1 :y 1})
-                      3 (s/create-jelly {:id 3 :x 6 :y 6})
-                      4 (s/create-statue {:id 4 :x 9 :y 10})}))
+  (reset! s/monsters {:1 (s/create-jelly {:id :1 :x 13 :y 13})
+                      :2 (s/create-jelly {:id :2 :x 1 :y 1})
+                      :3 (s/create-jelly {:id :3 :x 6 :y 6})
+                      :4 (s/create-statue {:id :4 :x 9 :y 10})}))
 
 (defn start-game []
   (canvas/init-ctx)
