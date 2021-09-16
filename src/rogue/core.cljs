@@ -14,7 +14,7 @@
    [:p "------------------------------------------------"]
    [:p "Player: " @state/player]
    (for [monster (state/all-monsters)]
-     [:p "Monster: " monster])])
+     [:p {:key (:id monster)} "Monster: " monster])])
 
 (defn game
   []
