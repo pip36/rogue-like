@@ -1,6 +1,8 @@
 (ns game.state
-  (:require [game.canvas :as canvas]
-            [game.config :as config]))
+  (:require
+   [reagent.core :as r]
+   [game.canvas :as canvas]
+   [game.config :as config]))
 
 ;;;; STATE DATA
 (defn wall []
@@ -27,10 +29,10 @@
             (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
             (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)]})
 
-(def player (atom {:x 2
-                   :y 3}))
+(def player (r/atom {:x 2
+                     :y 3}))
 
-(def monsters (atom  {}))
+(def monsters (r/atom  {}))
 
 (defn create-statue [statue-data]
   (merge statue-data config/statue))
