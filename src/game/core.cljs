@@ -5,19 +5,21 @@
    [game.config :as config]))
 
 (defn render []
-  (canvas/clear)
-  (s/render-map)
-  (s/render-player)
-  (s/render-monsters))
+  (when (not (= :GAME_OVER @s/game-state))
+    (canvas/clear)
+    (s/render-map)
+    (s/render-player)
+    (s/render-monsters)))
 
 (defn register-input-listener []
   (set! (. js/document -onkeydown)
         (fn [e]
           (let [k (config/input-keys (. e -keyCode))]
-            (s/handle-user-update k)
-            (render)
-            (s/update-monsters)
-            (render)))))
+            (when (not (= :GAME_OVER @s/game-state))
+              (s/handle-user-update k)
+              (render)
+              (s/update-monsters)
+              (render))))))
 
 (defn populate-map []
   (reset! s/monsters {:1 (s/create-jelly {:id :1 :x 13 :y 13})

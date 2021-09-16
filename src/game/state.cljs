@@ -106,7 +106,7 @@
 
 (defn hurt-player [amount]
   (swap! player update-in [:health] - amount)
-  (when (<= (:health player) 0) (kill-player)))
+  (when (<= (:health @player) 0) (kill-player)))
 
 (defn kill-monster [monster-id]
   (swap! monsters dissoc monster-id)
