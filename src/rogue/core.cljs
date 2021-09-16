@@ -8,10 +8,12 @@
 
 (defn stats []
   [:div#stats
-   [:p "Events"]
-   (for [event @state/events]
-     [:p event])
+   [:div#events
+    [:p "Events"]
+    (for [event @state/events]
+      [:p event])]
    [:p "------------------------------------------------"]
+   [:p "Game status: " @state/game-state]
    [:p "Player: " @state/player]
    (for [monster (state/all-monsters)]
      [:p {:key (:id monster)} "Monster: " monster])])

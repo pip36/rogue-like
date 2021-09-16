@@ -15,10 +15,12 @@
   {:type :JELLY
    :color "darkred"
    :health 10
+   :attack 5
    :movement :RANDOM})
 
 (def statue
   {:type :STATUE
    :color "grey"
    :health 10
+   :attack 5
    :movement :STATIC})

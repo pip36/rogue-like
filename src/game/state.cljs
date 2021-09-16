@@ -5,6 +5,8 @@
    [game.config :as config]))
 
 ;;;; STATE DATA
+(def game-state (atom :PLAYING))
+
 (defn wall []
   {:type :WALL})
 
@@ -30,7 +32,8 @@
             (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)]})
 
 (def player (r/atom {:x 2
-                     :y 3}))
+                     :y 3
+                     :health 100}))
 
 (def monsters (r/atom  {}))
 
@@ -43,9 +46,19 @@
   (merge jelly-data config/jelly))
 
 ;;;; State Queries?
+(defn in? [coll element]
+  (some #(= element %) coll))
+
+(defn get-adjacent-squares [x y]
+  [[x (inc y)] [x (dec y)]
+   [(inc x) y] [(dec x) y]])
 
 (defn player-at? [x y]
   (and (= x (:x @player)) (= y (:y @player))))
+
+(defn player-adjacent? [x y]
+  (let [adjacent-squares (get-adjacent-squares x y)]
+    (in? adjacent-squares [(:x @player) (:y @player)])))
 
 (defn get-tile [x y]
   (get (:values game-map) (+ x (* (:size game-map) y))))
@@ -72,8 +85,7 @@
   [monster]
   (let [x (:x monster)
         y (:y monster)
-        choices [[x (inc y)] [x (dec y)]
-                 [(inc x) y] [(dec x) y]]
+        choices (get-adjacent-squares x y)
         [x2 y2] (get choices (rand-int 4))]
     (cond
       (player-at? x2 y2) [x y]
@@ -88,6 +100,13 @@
 (defn move-player [x y]
   (swap! player conj {:x x
                       :y y}))
+
+(defn kill-player []
+  (reset! game-state :GAME_OVER))
+
+(defn hurt-player [amount]
+  (swap! player update-in [:health] - amount)
+  (when (<= (:health player) 0) (kill-player)))
 
 (defn kill-monster [monster-id]
   (swap! monsters dissoc monster-id)
@@ -109,13 +128,19 @@
       (<= new-health 0) (kill-monster monster-id)
       :else (hurt-monster monster-id damage))))
 
+(defn attack-player [monster]
+  (add-event "Monster attacks player")
+  (hurt-player (:attack monster)))
+
 ;;;; Logic
 (defn update-monsters
   "Loop through all monsters and trigger their movement function."
   []
   (doseq [[id monster] (seq @monsters)]
-    (let [[x y] (movement monster)]
-      (move-monster id x y))))
+    (cond
+      (player-adjacent? (:x monster) (:y monster)) (attack-player monster)
+      :else (let [[x y] (movement monster)]
+              (move-monster id x y)))))
 
 (defn new-position [x y]
   [(+ (:x @player) x) (+ (:y @player) y)])
