@@ -1,7 +1,8 @@
 (ns game.core
   (:require
    [game.canvas :as canvas]
-   [game.state :as s]))
+   [game.state :as s]
+   [game.config :as config]))
 
 (defn render []
   (canvas/clear)
@@ -12,10 +13,10 @@
 (defn register-input-listener []
   (set! (. js/document -onkeydown)
         (fn [e]
-          (let [k (s/input-keys (. e -keyCode))]
+          (let [k (config/input-keys (. e -keyCode))]
             (s/handle-user-update k)
             (render)
-            (s/handle-ai-update)
+            (s/update-monsters)
             (render)))))
 
 (defn populate-map []

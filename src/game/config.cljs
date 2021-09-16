@@ -1,5 +1,10 @@
 (ns game.config)
 
+(def input-keys {38 :UP
+                 40 :DOWN
+                 37 :LEFT
+                 39 :RIGHT})
+
 (def CANVAS-ID "gameCanvas")
 (def CANVAS-WIDTH 500)
 (def CANVAS-HEIGHT 500)

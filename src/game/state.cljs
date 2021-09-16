@@ -2,6 +2,7 @@
   (:require [game.canvas :as canvas]
             [game.config :as config]))
 
+;;;; STATE DATA
 (defn wall []
   {:type :WALL})
 
@@ -29,6 +30,16 @@
 (def player (atom {:x 2
                    :y 3}))
 
+(def monsters (atom  {}))
+
+(defn create-statue [statue-data]
+  (merge statue-data config/statue))
+
+(defn create-jelly [jelly-data]
+  (merge jelly-data config/jelly))
+
+;;;; State Queries?
+
 (defn player-at? [x y]
   (and (= x (:x @player)) (= y (:y @player))))
 
@@ -38,6 +49,15 @@
 (defn tile-is? [type x y]
   (= (:type (get-tile x y)) type))
 
+(defn all-monsters []
+  (map last @monsters))
+
+(defn get-monster-at [x y]
+  (some
+   #(and (= (:x %) x) (= (:y %) y) %)
+   (all-monsters)))
+
+;;;; Monster Movement
 (defmulti movement :movement)
 
 (defmethod movement :STATIC
@@ -57,42 +77,14 @@
       :else [x y])))
 
 
-
-(defn create-statue [statue-data]
-  (merge statue-data config/statue))
-
-(defn create-jelly [jelly-data]
-  (merge jelly-data config/jelly))
-
-(def monsters (atom  {}))
-
-(defn move-monster [id x y]
-  {:type :MOVE_MONSTER :payload {:id id :x x :y y}})
-
-(defn render-monster [monster]
-  (canvas/draw-rect
-   (* config/TILE-SIZE (:x monster))
-   (* config/TILE-SIZE (:y monster))
-   config/TILE-SIZE config/TILE-SIZE
-   (:color monster)))
-
-
-(defn render-monsters []
-  (doseq [[_ monster] (seq @monsters)]
-    (render-monster monster)))
-
-(defn all-monsters []
-  (map last @monsters))
-
-(defn get-monster-at [x y]
-  (some
-   #(and (= (:x %) x) (= (:y %) y) %)
-   (all-monsters)))
-
+;;;; State Mutations
 (defmulti handle :type)
 
 (defmethod handle :default [action]
   (. js/console error "No action handler defined for: " (:type action)))
+
+(defn move-monster [id x y]
+  {:type :MOVE_MONSTER :payload {:id id :x x :y y}})
 
 (defmethod handle :MOVE_MONSTER [action]
   (swap! monsters conj {(-> action :payload :id) (merge (get @monsters (-> action :payload :id)) {:x (-> action :payload :x)
@@ -102,22 +94,13 @@
   (doseq [action actions-list]
     (handle action)))
 
+;;;; Logic
 (defn update-monsters
   "Loop through all monsters and trigger their movement function."
   []
   (doseq [[id monster] (seq @monsters)]
     (let [[x y] (movement monster)]
       (trigger-actions [(move-monster id x y)]))))
-
-(defn handle-ai-update
-  "Update state for everything not directly controlled by the player."
-  []
-  (update-monsters))
-
-(def input-keys {38 :UP
-                 40 :DOWN
-                 37 :LEFT
-                 39 :RIGHT})
 
 (defn new-position [x y]
   [(+ (:x @player) x) (+ (:y @player) y)])
@@ -128,15 +111,23 @@
   (swap! player conj {:x (-> action :payload :x)
                       :y (-> action :payload :y)}))
 
-(defn render-player []
-  (canvas/draw-rect
-   (* config/TILE-SIZE (:x @player))
-   (* config/TILE-SIZE (:y @player))
-   config/TILE-SIZE config/TILE-SIZE
-   "green"))
+(defn try-move [[x y]]
+  (let [monster? (get-monster-at x y)]
+    (cond
+      monster? nil
+      (tile-is? :BLANK x y) (trigger-actions  [(move-player x y)])
+      :else nil)))
 
+;;; INPUT
+(defn handle-user-update [key]
+  (case key
+    :UP (try-move (new-position 0 -1))
+    :DOWN (try-move (new-position 0 1))
+    :LEFT (try-move (new-position -1 0))
+    :RIGHT (try-move (new-position 1 0))
+    :default nil))
 
-
+;;;; RENDERING
 (defn render-tile [tile x y h w]
   (let [colors  {:WALL "black"
                  :BLANK "white"}]
@@ -151,19 +142,23 @@
      config/TILE-SIZE
      config/TILE-SIZE)))
 
-(defn try-move [[x y]]
-  (let [monster? (get-monster-at x y)]
-    (cond
-      monster? nil
-      (tile-is? :BLANK x y) (trigger-actions  [(move-player x y)])
-      :else nil)))
+(defn render-player []
+  (canvas/draw-rect
+   (* config/TILE-SIZE (:x @player))
+   (* config/TILE-SIZE (:y @player))
+   config/TILE-SIZE config/TILE-SIZE
+   "green"))
 
-(defn handle-user-update [key]
-  (case key
-    :UP (try-move (new-position 0 -1))
-    :DOWN (try-move (new-position 0 1))
-    :LEFT (try-move (new-position -1 0))
-    :RIGHT (try-move (new-position 1 0))
-    :default nil))
+(defn render-monster [monster]
+  (canvas/draw-rect
+   (* config/TILE-SIZE (:x monster))
+   (* config/TILE-SIZE (:y monster))
+   config/TILE-SIZE config/TILE-SIZE
+   (:color monster)))
+
+
+(defn render-monsters []
+  (doseq [[_ monster] (seq @monsters)]
+    (render-monster monster)))
 
 
