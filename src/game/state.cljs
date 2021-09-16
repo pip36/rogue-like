@@ -38,13 +38,13 @@
 (defn tile-is? [type x y]
   (= (:type (get-tile x y)) type))
 
-(defn static-movement
-  "Can't move! Just returns the same position."
+(defmulti movement :movement)
+
+(defmethod movement :STATIC
   [monster]
   [(:x monster) (:y monster)])
 
-(defn random-movement
-  "Random movement to any surrounding square."
+(defmethod movement :RANDOM
   [monster]
   (let [x (:x monster)
         y (:y monster)
@@ -59,7 +59,7 @@
 (def statue
   {:type :STATUE
    :color "grey"
-   :movement static-movement})
+   :movement :STATIC})
 
 (defn create-statue [statue-data]
   (merge statue-data statue))
@@ -67,7 +67,7 @@
 (def jelly
   {:type :JELLY
    :color "darkred"
-   :movement random-movement})
+   :movement :RANDOM})
 
 (defn create-jelly [jelly-data]
   (merge jelly-data jelly))
@@ -114,8 +114,7 @@
   "Loop through all monsters and trigger their movement function."
   []
   (doseq [[id monster] (seq @monsters)]
-    (let [movement (:movement monster)
-          [x y] (movement monster)]
+    (let [[x y] (movement monster)]
       (trigger-actions [(move-monster id x y)]))))
 
 (defn handle-ai-update
