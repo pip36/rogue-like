@@ -56,21 +56,13 @@
       (tile-is? :BLANK x2 y2) [x2 y2]
       :else [x y])))
 
-(def statue
-  {:type :STATUE
-   :color "grey"
-   :movement :STATIC})
+
 
 (defn create-statue [statue-data]
-  (merge statue-data statue))
-
-(def jelly
-  {:type :JELLY
-   :color "darkred"
-   :movement :RANDOM})
+  (merge statue-data config/statue))
 
 (defn create-jelly [jelly-data]
-  (merge jelly-data jelly))
+  (merge jelly-data config/jelly))
 
 (def monsters (atom  {}))
 
