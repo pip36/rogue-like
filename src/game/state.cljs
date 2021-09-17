@@ -37,7 +37,7 @@
                          (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
                          (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)]}))
 
-(def monsters (r/atom  {}))
+(def entities (r/atom  {}))
 
 (def events (r/atom '()))
 
@@ -54,7 +54,7 @@
 (defn monster? [entity]
   (not (player? entity)))
 
-(defn get-player [] (:player @monsters))
+(defn get-player [] (:player @entities))
 
 (defn in? [coll element]
   (some #(= element %) coll))
@@ -91,7 +91,7 @@
   (= (:type (get-tile x y)) type))
 
 (defn all-monsters []
-  (filter monster? (map last @monsters)))
+  (filter monster? (map last @entities)))
 
 (defn get-monster-at [x y]
   (some
@@ -122,28 +122,28 @@
   (swap! events conj text))
 
 (defn move-player [x y]
-  (swap! monsters update-in [:player] conj {:x x
+  (swap! entities update-in [:player] conj {:x x
                                             :y y}))
 
 (defn set-direction [direction]
-  (swap! monsters update-in [:player] conj {:direction direction}))
+  (swap! entities update-in [:player] conj {:direction direction}))
 
 (defn kill-player []
   (reset! game-state :GAME_OVER))
 
 (defn hurt-player [amount]
-  (swap! monsters update-in [:player :health] - amount)
+  (swap! entities update-in [:player :health] - amount)
   (when (<= (:health (get-player)) 0) (kill-player)))
 
 (defn kill-monster [monster-id]
-  (swap! monsters dissoc monster-id)
+  (swap! entities dissoc monster-id)
   (add-event "Player killed monster"))
 
 (defn hurt-monster [monster-id amount]
-  (swap! monsters update-in [monster-id :health] - amount))
+  (swap! entities update-in [monster-id :health] - amount))
 
 (defn move-monster [monster-id x y]
-  (swap! monsters conj {monster-id (merge (get @monsters monster-id) {:x x
+  (swap! entities conj {monster-id (merge (get @entities monster-id) {:x x
                                                                       :y y})}))
 
 (defn coordinates->i [size x y]
@@ -154,7 +154,7 @@
   (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) (blank)))))
 
 (defn attack-monster [monster-id]
-  (let [monster-health (-> @monsters monster-id :health)
+  (let [monster-health (-> @entities monster-id :health)
         damage 5
         new-health (- monster-health damage)]
     (add-event "Player attacked monster")
@@ -243,7 +243,7 @@
 
 
 (defn render-monsters []
-  (doseq [[_ monster] (seq @monsters)]
+  (doseq [monster (all-monsters)]
     (render-monster monster)))
 
 

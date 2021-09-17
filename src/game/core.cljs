@@ -22,7 +22,7 @@
               (render))))))
 
 (defn populate-map []
-  (reset! s/monsters {:player {:id :player
+  (reset! s/entities {:player {:id :player
                                :x 2
                                :y 3
                                :health 100
