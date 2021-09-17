@@ -90,8 +90,11 @@
 (defn tile-is? [type x y]
   (= (:type (get-tile x y)) type))
 
+(defn all-entities []
+  (map last @entities))
+
 (defn all-monsters []
-  (filter monster? (map last @entities)))
+  (filter monster? (all-entities)))
 
 (defn get-monster-at [x y]
   (some
@@ -226,24 +229,16 @@
        tile
        coordinates))))
 
-(defn render-player []
-  (let [p (get-player)]
-    (canvas/draw-rect
-     (* config/TILE-SIZE (:x p))
-     (* config/TILE-SIZE (:y p))
-     config/TILE-SIZE config/TILE-SIZE
-     "green")))
-
-(defn render-monster [monster]
+(defn render-entity [entity]
   (canvas/draw-rect
-   (* config/TILE-SIZE (:x monster))
-   (* config/TILE-SIZE (:y monster))
+   (* config/TILE-SIZE (:x entity))
+   (* config/TILE-SIZE (:y entity))
    config/TILE-SIZE config/TILE-SIZE
-   (:color monster)))
+   (:color entity)))
 
 
-(defn render-monsters []
-  (doseq [monster (all-monsters)]
-    (render-monster monster)))
+(defn render-entities []
+  (doseq [entity (all-entities)]
+    (render-entity entity)))
 
 

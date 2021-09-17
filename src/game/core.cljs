@@ -8,8 +8,7 @@
   (when (not (= :GAME_OVER @s/game-state))
     (canvas/clear)
     (s/render-map)
-    (s/render-player)
-    (s/render-monsters)))
+    (s/render-entities)))
 
 (defn register-input-listener []
   (set! (. js/document -onkeydown)
@@ -25,6 +24,7 @@
   (reset! s/entities {:player {:id :player
                                :x 2
                                :y 3
+                               :color "green"
                                :health 100
                                :direction :UP}
                       :1 (s/create-jelly {:id :1 :x 13 :y 13})
