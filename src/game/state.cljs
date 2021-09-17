@@ -3,7 +3,7 @@
    [reagent.core :as r]
    [game.canvas :as canvas]
    [game.config :as config]
-   [game.util :refer [monster? in? adjacent-squares coordinates->i add-coordinates]]))
+   [game.util :refer [monster? in? adjacent-squares coordinates->i]]))
 
 ;;;; STATE DATA
 (def game-state (atom :PLAYING))
@@ -20,6 +20,14 @@
   {:type :DOOR
    :color "orange"})
 
+(defn closed-chest []
+  {:type :CLOSED-CHEST
+   :color "brown"})
+
+(defn opened-chest []
+  {:type :OPENED-CHEST
+   :color "black"})
+
 (def game-map (atom
                {:size 15
                 :values [(wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)
@@ -35,10 +43,12 @@
                          (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
                          (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
                          (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (closed-chest) (blank) (blank) (closed-chest) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
                          (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)]}))
 
 (def entities (r/atom  {}))
+
+(def inventory (r/atom {:gold 0}))
 
 (def events (r/atom '()))
 
@@ -92,6 +102,9 @@
 (defn add-event [text]
   (swap! events conj text))
 
+(defn add-gold [amount]
+  (swap! inventory update-in [:gold] + amount))
+
 (defn move-entity [id x y]
   (swap! entities update-in [id] conj {:x x
                                        :y y}))
@@ -113,6 +126,11 @@
   (add-event (str "Opened door"))
   (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) (blank)))))
 
+(defn open-chest [x y]
+  (add-event (str "Opened chest"))
+  (add-gold (rand-int 100))
+  (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) (opened-chest)))))
+
 (defn perform-attack [src target]
   (add-event (str src "attacked" target))
   (hurt-entity target (:attack (get-entity src)))
@@ -120,8 +138,9 @@
 
 (defn try-open []
   (let [[x y] (get-player-tile-infront)]
-    (when (tile-is? :DOOR x y)
-      (open-door x y))))
+    (cond
+      (tile-is? :DOOR x y) (open-door x y)
+      (tile-is? :CLOSED-CHEST x y) (open-chest x y))))
 
 (defn try-move [[x y] direction]
   (let [entity (get-entity-at x y)]

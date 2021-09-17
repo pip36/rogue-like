@@ -15,8 +15,9 @@
    [:p "------------------------------------------------"]
    [:p "Game status: " @state/game-state]
    [:p "Player: " (:player @state/entities)]
-   (for [monster (state/all-monsters)]
-     [:p {:key (:id monster)} "Monster: " monster])])
+   [:p "Inventory " (str @state/inventory)
+    (for [monster (state/all-monsters)]
+      [:p {:key (:id monster)} "Monster: " monster])]])
 
 (defn game
   []

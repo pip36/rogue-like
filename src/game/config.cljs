@@ -14,14 +14,14 @@
 ;; entity types
 (def player
   {:id :player
-   :color "green"
+   :color "red"
    :health 100
    :attack 5
    :direction :UP})
 
 (def jelly
   {:type :JELLY
-   :color "darkred"
+   :color "green"
    :health 10
    :attack 5
    :movement :RANDOM})
