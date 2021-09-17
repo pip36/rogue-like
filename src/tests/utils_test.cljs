@@ -1,6 +1,5 @@
 (ns tests.utils-test
   (:require [cljs.test :refer (deftest run-tests are)]
-            [game.state :as state]
             [game.util :as util]))
 
 (deftest player?-checks-if-data-is-player
@@ -25,7 +24,7 @@
     nil [1] 2))
 
 (deftest coordinates->i_converts_tilemap_coordinates_to_an_index_value
-  (are [expected map_size x y] (= expected (state/coordinates->i map_size x y))
+  (are [expected map_size x y] (= expected (util/coordinates->i map_size x y))
     0 1 0 0
     2 2 0 1
     1 2 1 0
