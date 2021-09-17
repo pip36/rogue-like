@@ -3,7 +3,13 @@
    [reagent.core :as r]
    [game.canvas :as canvas]
    [game.config :as config]
-   [game.util :refer [monster? in? adjacent-squares coordinates->i i->coordinates add-coordinates]]))
+   [game.util :refer [monster?
+                      in?
+                      adjacent-squares
+                      coordinates->i
+                      i->coordinates
+                      add-coordinates
+                      clamp]]))
 
 ;;;; STATE DATA
 (def game-state (atom :PLAYING))
@@ -124,8 +130,7 @@
   (let [[x y] (coordinates->pixels coordinates)]
     (canvas/draw-rect x y config/TILE-SIZE config/TILE-SIZE (:color tile))))
 
-(defn clamp [x min max]
-  (Math/min (Math/max x min) max))
+
 
 (defn calculate-scroll-offset-from-player [x y]
   [(clamp (Math/floor (- x (/ config/tiles-per-screen-x 2)))
