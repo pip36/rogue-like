@@ -6,7 +6,11 @@
                       :output-dir "public/js"
                       :asset-path "/js"
                       :modules    {:app {:entries [rogue.core]}}
-                      :devtools   {:after-load rogue.core/mount-root}}}
+                      :devtools   {:after-load rogue.core/mount-root}}
+                :test {:target    :node-test
+                       :output-to "out/node-tests.js"
+                       :ns-regexp "-test$"
+                       :autorun true}}
 
  :dev-http     {3000 {:root    "public"
                       :handler user/app}}}

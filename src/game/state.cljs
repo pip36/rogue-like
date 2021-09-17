@@ -8,32 +8,39 @@
 (def game-state (atom :PLAYING))
 
 (defn wall []
-  {:type :WALL})
+  {:type :WALL
+   :color "black"})
 
 (defn blank []
-  {:type :BLANK})
+  {:type :BLANK
+   :color "white"})
 
-(def game-map
-  {:size 15
-   :values [(wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (wall) (wall) (wall) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (blank) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (blank) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-            (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)]})
+(defn door []
+  {:type :DOOR
+   :color "orange"})
+
+(def game-map (atom
+               {:size 15
+                :values [(wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (wall) (wall) (wall) (door) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (door) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (door) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
+                         (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)]}))
 
 (def player (r/atom {:x 2
                      :y 3
-                     :health 100}))
+                     :health 100
+                     :direction :UP}))
 
 (def monsters (r/atom  {}))
 
@@ -60,8 +67,19 @@
   (let [adjacent-squares (get-adjacent-squares x y)]
     (in? adjacent-squares [(:x @player) (:y @player)])))
 
+(defn get-player-tile-infront []
+  (let [direction (:direction @player)
+        x (:x @player)
+        y (:y @player)]
+    (case direction
+      :UP [x (dec y)]
+      :DOWN [x (inc y)]
+      :LEFT [(dec x) y]
+      :RIGHT [(inc x) y]
+      :default nil)))
+
 (defn get-tile [x y]
-  (get (:values game-map) (+ x (* (:size game-map) y))))
+  (get (:values @game-map) (+ x (* (:size @game-map) y))))
 
 (defn tile-is? [type x y]
   (= (:type (get-tile x y)) type))
@@ -101,6 +119,9 @@
   (swap! player conj {:x x
                       :y y}))
 
+(defn set-direction [direction]
+  (swap! player conj {:direction direction}))
+
 (defn kill-player []
   (reset! game-state :GAME_OVER))
 
@@ -118,6 +139,13 @@
 (defn move-monster [monster-id x y]
   (swap! monsters conj {monster-id (merge (get @monsters monster-id) {:x x
                                                                       :y y})}))
+
+(defn coordinates->i [size x y]
+  (+ x (* size y)))
+
+(defn open-door [x y]
+  (add-event (str "Opened door"))
+  (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) (blank)))))
 
 (defn attack-monster [monster-id]
   (let [monster-health (-> @monsters monster-id :health)
@@ -145,36 +173,51 @@
 (defn new-position [x y]
   [(+ (:x @player) x) (+ (:y @player) y)])
 
-(defn try-move [[x y]]
+(defn try-move [[x y] direction]
   (let [monster (get-monster-at x y)]
+    (set-direction direction)
     (cond
       (some? monster) (attack-monster (:id monster))
       (tile-is? :BLANK x y) (move-player x y)
       :else nil)))
 
+(defn try-open-door []
+  (let [[x y] (get-player-tile-infront)]
+    (when (tile-is? :DOOR x y)
+      (open-door x y))))
+
 ;;; INPUT
 (defn handle-user-update [key]
   (case key
-    :UP (try-move (new-position 0 -1))
-    :DOWN (try-move (new-position 0 1))
-    :LEFT (try-move (new-position -1 0))
-    :RIGHT (try-move (new-position 1 0))
+    :UP (try-move (new-position 0 -1) :UP)
+    :DOWN (try-move (new-position 0 1) :DOWN)
+    :LEFT (try-move (new-position -1 0) :LEFT)
+    :RIGHT (try-move (new-position 1 0) :RIGHT)
+    :O (try-open-door)
     :default nil))
 
 ;;;; RENDERING
-(defn render-tile [tile x y h w]
-  (let [colors  {:WALL "black"
-                 :BLANK "white"}]
-    (canvas/draw-rect x y h w ((:type tile) colors))))
+(defn i->coordinates [i]
+  [(mod i (:size @game-map)) (Math/floor (/ i (:size @game-map)))])
+
+(defn coordinates->pixels [[x y]]
+  [(* x config/TILE-SIZE) (* y config/TILE-SIZE)])
+
+(defmulti render-tile (fn [tile _] (:type tile)))
+(defmethod render-tile :DOOR [_ coordinates]
+  (let [[x y] (coordinates->pixels coordinates)]
+    (canvas/draw-rect x y config/TILE-SIZE config/TILE-SIZE "orange")))
+
+(defmethod render-tile :default [tile coordinates]
+  (let [[x y] (coordinates->pixels coordinates)]
+    (canvas/draw-rect x y config/TILE-SIZE config/TILE-SIZE (:color tile))))
 
 (defn render-map []
-  (doseq [[i x] (map-indexed vector (:values game-map))]
-    (render-tile
-     x
-     (* (mod i (:size game-map)) config/TILE-SIZE)
-     (* (Math/floor (/ i (:size game-map))) config/TILE-SIZE)
-     config/TILE-SIZE
-     config/TILE-SIZE)))
+  (doseq [[i tile] (map-indexed vector (:values @game-map))]
+    (let [coordinates (i->coordinates i)]
+      (render-tile
+       tile
+       coordinates))))
 
 (defn render-player []
   (canvas/draw-rect

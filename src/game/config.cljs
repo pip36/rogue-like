@@ -3,7 +3,8 @@
 (def input-keys {38 :UP
                  40 :DOWN
                  37 :LEFT
-                 39 :RIGHT})
+                 39 :RIGHT
+                 79 :O})
 
 (def CANVAS-ID "gameCanvas")
 (def CANVAS-WIDTH 500)
