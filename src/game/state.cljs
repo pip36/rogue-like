@@ -2,7 +2,8 @@
   (:require
    [reagent.core :as r]
    [game.canvas :as canvas]
-   [game.config :as config]))
+   [game.config :as config]
+   [game.util :refer [monster? in?]]))
 
 ;;;; STATE DATA
 (def game-state (atom :PLAYING))
@@ -48,18 +49,9 @@
   (merge jelly-data config/jelly))
 
 ;;;; State Queries?
-(defn player? [entity]
-  (= :player (:id entity)))
-
-(defn monster? [entity]
-  (not (player? entity)))
-
 (defn get-entity [id] (id @entities))
 
 (defn get-player [] (get-entity :player))
-
-(defn in? [coll element]
-  (some #(= element %) coll))
 
 (defn get-adjacent-squares [x y]
   [[x (inc y)] [x (dec y)]
