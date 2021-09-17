@@ -211,9 +211,6 @@
   [(* x config/TILE-SIZE) (* y config/TILE-SIZE)])
 
 (defmulti render-tile (fn [tile _] (:type tile)))
-(defmethod render-tile :DOOR [_ coordinates]
-  (let [[x y] (coordinates->pixels coordinates)]
-    (canvas/draw-rect x y config/TILE-SIZE config/TILE-SIZE "orange")))
 
 (defmethod render-tile :default [tile coordinates]
   (let [[x y] (coordinates->pixels coordinates)]
