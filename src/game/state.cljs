@@ -131,12 +131,12 @@
 (defn set-direction [direction]
   (swap! entities update-in [:player] conj {:direction direction}))
 
-(defn kill-player []
+(defn end-game []
   (reset! game-state :GAME_OVER))
 
 (defn hurt-player [amount]
   (swap! entities update-in [:player :health] - amount)
-  (when (<= (:health (get-player)) 0) (kill-player)))
+  (when (<= (:health (get-player)) 0) (end-game)))
 
 (defn kill-monster [monster-id]
   (swap! entities dissoc monster-id)
