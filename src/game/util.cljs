@@ -31,6 +31,11 @@
   [size x y]
   (+ x (* size y)))
 
+(defn i->coordinates
+  "For given size of tilemap, convert index into coordinates"
+  [size i]
+  [(mod i size) (Math/floor (/ i size))])
+
 (defn add-coordinates
   "Returns sum of 2 coordinates"
   [[x1 y1] [x2 y2]]

@@ -3,48 +3,12 @@
    [reagent.core :as r]
    [game.canvas :as canvas]
    [game.config :as config]
-   [game.util :refer [monster? in? adjacent-squares coordinates->i]]))
+   [game.util :refer [monster? in? adjacent-squares coordinates->i i->coordinates]]))
 
 ;;;; STATE DATA
 (def game-state (atom :PLAYING))
 
-(defn wall []
-  {:type :WALL
-   :color "black"})
-
-(defn blank []
-  {:type :BLANK
-   :color "white"})
-
-(defn door []
-  {:type :DOOR
-   :color "orange"})
-
-(defn closed-chest []
-  {:type :CLOSED-CHEST
-   :color "brown"})
-
-(defn opened-chest []
-  {:type :OPENED-CHEST
-   :color "black"})
-
-(def game-map (atom
-               {:size 15
-                :values [(wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (wall) (wall) (wall) (door) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (door) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (door) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (closed-chest) (blank) (blank) (closed-chest) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
-                         (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)]}))
+(def game-map (atom {}))
 
 (def entities (r/atom  {}))
 
@@ -124,12 +88,12 @@
 
 (defn open-door [x y]
   (add-event (str "Opened door"))
-  (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) (blank)))))
+  (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) config/blank))))
 
 (defn open-chest [x y]
   (add-event (str "Opened chest"))
   (add-gold (rand-int 100))
-  (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) (opened-chest)))))
+  (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) config/opened-chest))))
 
 (defn perform-attack [src target]
   (add-event (str src "attacked" target))
@@ -151,9 +115,6 @@
       :else nil)))
 
 ;;;; RENDERING
-(defn i->coordinates [i]
-  [(mod i (:size @game-map)) (Math/floor (/ i (:size @game-map)))])
-
 (defn coordinates->pixels [[x y]]
   [(* x config/TILE-SIZE) (* y config/TILE-SIZE)])
 
@@ -165,7 +126,7 @@
 
 (defn render-map []
   (doseq [[i tile] (map-indexed vector (:values @game-map))]
-    (let [coordinates (i->coordinates i)]
+    (let [coordinates (i->coordinates (:size @game-map) i)]
       (render-tile
        tile
        coordinates))))

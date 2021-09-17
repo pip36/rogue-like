@@ -5,7 +5,8 @@
    [game.config :as config]
    [game.builders :as builders]
    [game.entity-behaviours :as behaviour]
-   [game.util :refer [add-coordinates]]))
+   [game.util :refer [add-coordinates i->coordinates]]
+   [clojure.string :as string]))
 
 (defn render []
   (when (not (= :GAME_OVER @s/game-state))
@@ -42,16 +43,30 @@
               (when (not (contains? @s/entities :player)) (s/end-game))
               (render))))))
 
-(defn populate-map []
-  (reset! s/entities {:player (builders/build-player {:x 2
-                                                      :y 3})
-                      :1 (builders/build-jelly {:id :1 :x 13 :y 13})
-                      :2 (builders/build-jelly {:id :2 :x 1 :y 1})
-                      :3 (builders/build-jelly {:id :3 :x 6 :y 6})
-                      :4 (builders/build-statue {:id :4 :x 9 :y 10})}))
+(defn populate-map [m]
+  (let [map-data (mapcat (fn [row] (map (fn [tile] (case tile
+                                                     "-"  config/wall
+                                                     "/"  config/door
+                                                     "C"  config/closed-chest
+                                                     config/blank)) row)) m)]
+    (reset! s/game-map {:size 50 :values (vec map-data)})
+
+    (doseq [[i tile] (map-indexed vector (string/join m))]
+      (let [[x y] (i->coordinates 50 i)
+            id (keyword (str (random-uuid)))]
+        (case tile
+          "@" (swap! s/entities assoc :player (builders/build-player {:x x
+                                                                      :y y}))
+          "J" (swap! s/entities assoc id (builders/build-jelly {:id id
+                                                                :x x
+                                                                :y y}))
+          "S" (swap! s/entities assoc id (builders/build-statue {:id id
+                                                                 :x x
+                                                                 :y y}))
+          nil)))))
 
 (defn start-game []
   (canvas/init-ctx)
   (register-input-listener)
-  (populate-map)
+  (populate-map config/map1)
   (render))

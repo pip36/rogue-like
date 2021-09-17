@@ -9,7 +9,7 @@
 (def CANVAS-ID "gameCanvas")
 (def CANVAS-WIDTH 500)
 (def CANVAS-HEIGHT 500)
-(def TILE-SIZE 16)
+(def TILE-SIZE 10)
 
 ;; entity types
 (def player
@@ -32,3 +32,76 @@
    :health 10
    :attack 5
    :movement :STATIC})
+
+;; map tiles
+(def wall
+  {:type :WALL
+   :color "black"})
+
+(def blank
+  {:type :BLANK
+   :color "white"})
+
+(def door
+  {:type :DOOR
+   :color "orange"})
+
+(def closed-chest
+  {:type :CLOSED-CHEST
+   :color "brown"})
+
+(def opened-chest
+  {:type :OPENED-CHEST
+   :color "black"})
+
+(def map1
+  ["--------------------------------------------------"
+   "-@                                              c-"
+   "-                                J               -"
+   "-                                                -"
+   "-           J                         J          -"
+   "-                                                -"
+   "-                      J                         -"
+   "-                                                -"
+   "-                                                -"
+   "-C          J                         J          -"
+   "-----------------------------------------------/--"
+   "-C               /S                              -"
+   "-                -                               -"
+   "-      J         -            J                  -"
+   "-                -c                              -"
+   "-                -                               -"
+   "-                -                               -"
+   "-                -                               -"
+   "-      J    J    -                               -"
+   "-                -                               -"
+   "-                -                               -"
+   "-                -               J               -"
+   "-                -                               -"
+   "-                -                               -"
+   "-           J    -      J           J            -"
+   "-                -                               -"
+   "-------/------------------------------------------"
+   "-              J                                 -"
+   "-                                     SS         -"
+   "-                                    SCCS        -"
+   "-                      J             SCCS        -"
+   "-  J           J                      SS         -"
+   "----------------------------/---------------------"
+   "-C                         -                    C-"
+   "-            J             /     J               -"
+   "-                          -               J     -"
+   "-                  J       -                     -"
+   "-                          -                     -"
+   "-                          -      J              -"
+   "-            J             -                     -"
+   "-                          -                     -"
+   "-                          -                  J  -"
+   "-     J         J          -      J              -"
+   "-                          -                     -"
+   "-                          -                     -"
+   "-                          -                     -"
+   "-                          -                     -"
+   "-     J            J       -                     -"
+   "-                          -                     -"
+   "--------------------------------------------------"])
