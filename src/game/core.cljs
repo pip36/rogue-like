@@ -18,6 +18,7 @@
               (s/handle-user-update k)
               (render)
               (s/update-monsters)
+              (when (not (contains? @s/entities :player)) (s/end-game))
               (render))))))
 
 (defn populate-map []
@@ -26,6 +27,7 @@
                                :y 3
                                :color "green"
                                :health 100
+                               :attack 5
                                :direction :UP}
                       :1 (s/create-jelly {:id :1 :x 13 :y 13})
                       :2 (s/create-jelly {:id :2 :x 1 :y 1})

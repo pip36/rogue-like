@@ -54,7 +54,9 @@
 (defn monster? [entity]
   (not (player? entity)))
 
-(defn get-player [] (:player @entities))
+(defn get-entity [id] (id @entities))
+
+(defn get-player [] (get-entity :player))
 
 (defn in? [coll element]
   (some #(= element %) coll))
@@ -137,9 +139,9 @@
 (defn hurt-entity [id amount]
   (swap! entities update-in [id :health] - amount))
 
-(defn kill-monster [monster-id]
-  (swap! entities dissoc monster-id)
-  (add-event "Player killed monster"))
+(defn kill-entity [id]
+  (swap! entities dissoc id)
+  (add-event (str id "died")))
 
 (defn coordinates->i [size x y]
   (+ x (* size y)))
@@ -148,19 +150,10 @@
   (add-event (str "Opened door"))
   (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) (blank)))))
 
-(defn attack-monster [monster-id]
-  (let [monster-health (-> @entities monster-id :health)
-        damage 5
-        new-health (- monster-health damage)]
-    (add-event "Player attacked monster")
-    (cond
-      (<= new-health 0) (kill-monster monster-id)
-      :else (hurt-entity monster-id damage))))
-
-(defn attack-player [monster]
-  (add-event "Monster attacks player")
-  (hurt-entity :player (:attack monster))
-  (when (<= (:health (get-player)) 0) (end-game)))
+(defn perform-attack [src target]
+  (add-event (str src "attacked" target))
+  (hurt-entity target (:attack (get-entity src)))
+  (when (<= (:health (get-entity target)) 0) (kill-entity target)))
 
 ;;;; Logic
 (defn update-monsters
@@ -168,7 +161,7 @@
   []
   (doseq [monster (all-monsters)]
     (cond
-      (player-adjacent? (:x monster) (:y monster)) (attack-player monster)
+      (player-adjacent? (:x monster) (:y monster)) (perform-attack (:id monster) :player)
       :else (let [[x y] (movement monster)]
               (move-entity (:id monster) x y)))))
 
@@ -180,7 +173,7 @@
   (let [monster (get-monster-at x y)]
     (set-direction direction)
     (cond
-      (some? monster) (attack-monster (:id monster))
+      (some? monster) (perform-attack :player (:id monster))
       (tile-is? :BLANK x y) (move-entity :player x y)
       :else nil)))
 
