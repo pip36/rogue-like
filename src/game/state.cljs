@@ -127,35 +127,26 @@
 (defn clamp [x min max]
   (Math/min (Math/max x min) max))
 
+(defn calculate-scroll-offset-from-player [x y]
+  [(clamp (Math/floor (- x (/ config/tiles-per-screen-x 2)))
+          0
+          (Math/max 0 (- (:size @game-map) config/tiles-per-screen-x)))
+   (clamp (Math/floor (- y (/ config/tiles-per-screen-y 2)))
+          0
+          (Math/max 0 (- (:size @game-map) config/tiles-per-screen-y)))])
+
 (defn render-map []
   (doseq [[i tile] (map-indexed vector (:values @game-map))]
     (let [coordinates (i->coordinates (:size @game-map) i)
           [player-x player-y] (get-player-coordinates)
-          number-of-tiles-per-screen (/ config/CANVAS-WIDTH config/TILE-SIZE)
-          x-offset (clamp
-                    (Math/floor (- player-x (/ number-of-tiles-per-screen 2)))
-                    0
-                    (- (:size @game-map) number-of-tiles-per-screen))
-          y-offset (clamp
-                    (Math/floor (- player-y (/ number-of-tiles-per-screen 2)))
-                    0
-                    (- (:size @game-map) number-of-tiles-per-screen))]
-
+          [x-offset y-offset] (calculate-scroll-offset-from-player player-x player-y)]
       (render-tile
        tile
        (add-coordinates coordinates [(- x-offset) (- y-offset)])))))
 
 (defn render-entity [entity]
   (let [[player-x player-y] (get-player-coordinates)
-        number-of-tiles-per-screen (/ config/CANVAS-WIDTH config/TILE-SIZE)
-        x-offset (clamp
-                  (Math/floor (- player-x (/ number-of-tiles-per-screen 2)))
-                  0
-                  (- (:size @game-map) number-of-tiles-per-screen))
-        y-offset (clamp
-                  (Math/floor (- player-y (/ number-of-tiles-per-screen 2)))
-                  0
-                  (- (:size @game-map) number-of-tiles-per-screen))]
+        [x-offset y-offset] (calculate-scroll-offset-from-player player-x player-y)]
     (canvas/draw-rect
      (* config/TILE-SIZE (- (:x entity) x-offset))
      (* config/TILE-SIZE (- (:y entity) y-offset))

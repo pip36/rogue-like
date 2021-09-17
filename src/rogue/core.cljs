@@ -32,8 +32,8 @@
       [:div#container
        [:div
         [:canvas {:id config/CANVAS-ID
-                  :width config/CANVAS-HEIGHT
-                  :height config/CANVAS-WIDTH
+                  :height config/CANVAS-HEIGHT
+                  :width config/CANVAS-WIDTH
                   :style {:border "1px solid black"}}]]
        [stats]])}))
 

@@ -7,9 +7,12 @@
                  79 :O})
 
 (def CANVAS-ID "gameCanvas")
-(def CANVAS-WIDTH 500)
-(def CANVAS-HEIGHT 500)
-(def TILE-SIZE 16)
+(def CANVAS-WIDTH 400)
+(def CANVAS-HEIGHT 400)
+(def TILE-SIZE 10)
+
+(def tiles-per-screen-x (/ CANVAS-WIDTH TILE-SIZE))
+(def tiles-per-screen-y (/ CANVAS-HEIGHT TILE-SIZE))
 
 ;; entity types
 (def player
