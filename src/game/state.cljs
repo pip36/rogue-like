@@ -134,17 +134,12 @@
 (defn end-game []
   (reset! game-state :GAME_OVER))
 
-(defn hurt-player [amount]
-  (swap! entities update-in [:player :health] - amount)
-  (when (<= (:health (get-player)) 0) (end-game)))
+(defn hurt-entity [id amount]
+  (swap! entities update-in [id :health] - amount))
 
 (defn kill-monster [monster-id]
   (swap! entities dissoc monster-id)
   (add-event "Player killed monster"))
-
-(defn hurt-monster [monster-id amount]
-  (swap! entities update-in [monster-id :health] - amount))
-
 
 (defn coordinates->i [size x y]
   (+ x (* size y)))
@@ -160,11 +155,12 @@
     (add-event "Player attacked monster")
     (cond
       (<= new-health 0) (kill-monster monster-id)
-      :else (hurt-monster monster-id damage))))
+      :else (hurt-entity monster-id damage))))
 
 (defn attack-player [monster]
   (add-event "Monster attacks player")
-  (hurt-player (:attack monster)))
+  (hurt-entity :player (:attack monster))
+  (when (<= (:health (get-player)) 0) (end-game)))
 
 ;;;; Logic
 (defn update-monsters
