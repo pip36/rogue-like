@@ -14,7 +14,7 @@
       [:p event])]
    [:p "------------------------------------------------"]
    [:p "Game status: " @state/game-state]
-   [:p "Player: " @state/player]
+   [:p "Player: " (:player @state/monsters)]
    (for [monster (state/all-monsters)]
      [:p {:key (:id monster)} "Monster: " monster])])
 

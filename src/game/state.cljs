@@ -37,11 +37,6 @@
                          (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (blank) (wall) (blank) (blank) (blank) (wall)
                          (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall) (wall) (wall)  (wall)  (wall)  (wall)]}))
 
-(def player (r/atom {:x 2
-                     :y 3
-                     :health 100
-                     :direction :UP}))
-
 (def monsters (r/atom  {}))
 
 (def events (r/atom '()))
@@ -53,6 +48,14 @@
   (merge jelly-data config/jelly))
 
 ;;;; State Queries?
+(defn player? [entity]
+  (= :player (:id entity)))
+
+(defn monster? [entity]
+  (not (player? entity)))
+
+(defn get-player [] (:player @monsters))
+
 (defn in? [coll element]
   (some #(= element %) coll))
 
@@ -61,16 +64,19 @@
    [(inc x) y] [(dec x) y]])
 
 (defn player-at? [x y]
-  (and (= x (:x @player)) (= y (:y @player))))
+  (let [p (get-player)]
+    (and (= x (:x p)) (= y (:y p)))))
 
 (defn player-adjacent? [x y]
-  (let [adjacent-squares (get-adjacent-squares x y)]
-    (in? adjacent-squares [(:x @player) (:y @player)])))
+  (let [adjacent-squares (get-adjacent-squares x y)
+        p (get-player)]
+    (in? adjacent-squares [(:x p) (:y p)])))
 
 (defn get-player-tile-infront []
-  (let [direction (:direction @player)
-        x (:x @player)
-        y (:y @player)]
+  (let [p (get-player)
+        direction (:direction p)
+        x (:x p)
+        y (:y p)]
     (case direction
       :UP [x (dec y)]
       :DOWN [x (inc y)]
@@ -85,7 +91,7 @@
   (= (:type (get-tile x y)) type))
 
 (defn all-monsters []
-  (map last @monsters))
+  (filter monster? (map last @monsters)))
 
 (defn get-monster-at [x y]
   (some
@@ -116,18 +122,18 @@
   (swap! events conj text))
 
 (defn move-player [x y]
-  (swap! player conj {:x x
-                      :y y}))
+  (swap! monsters update-in [:player] conj {:x x
+                                            :y y}))
 
 (defn set-direction [direction]
-  (swap! player conj {:direction direction}))
+  (swap! monsters update-in [:player] conj {:direction direction}))
 
 (defn kill-player []
   (reset! game-state :GAME_OVER))
 
 (defn hurt-player [amount]
-  (swap! player update-in [:health] - amount)
-  (when (<= (:health @player) 0) (kill-player)))
+  (swap! monsters update-in [:player :health] - amount)
+  (when (<= (:health (get-player)) 0) (kill-player)))
 
 (defn kill-monster [monster-id]
   (swap! monsters dissoc monster-id)
@@ -164,14 +170,15 @@
 (defn update-monsters
   "Loop through all monsters and trigger their movement function."
   []
-  (doseq [[id monster] (seq @monsters)]
+  (doseq [monster (all-monsters)]
     (cond
       (player-adjacent? (:x monster) (:y monster)) (attack-player monster)
       :else (let [[x y] (movement monster)]
-              (move-monster id x y)))))
+              (move-monster (:id monster) x y)))))
 
 (defn new-position [x y]
-  [(+ (:x @player) x) (+ (:y @player) y)])
+  (let [p (get-player)]
+    [(+ (:x p) x) (+ (:y p) y)]))
 
 (defn try-move [[x y] direction]
   (let [monster (get-monster-at x y)]
@@ -220,11 +227,12 @@
        coordinates))))
 
 (defn render-player []
-  (canvas/draw-rect
-   (* config/TILE-SIZE (:x @player))
-   (* config/TILE-SIZE (:y @player))
-   config/TILE-SIZE config/TILE-SIZE
-   "green"))
+  (let [p (get-player)]
+    (canvas/draw-rect
+     (* config/TILE-SIZE (:x p))
+     (* config/TILE-SIZE (:y p))
+     config/TILE-SIZE config/TILE-SIZE
+     "green")))
 
 (defn render-monster [monster]
   (canvas/draw-rect
