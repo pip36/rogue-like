@@ -3,7 +3,9 @@
    [game.canvas :as canvas]
    [game.state :as s]
    [game.config :as config]
-   [game.builders :as builders]))
+   [game.builders :as builders]
+   [game.entity-behaviours :as behaviour]
+   [game.util :refer [add-coordinates]]))
 
 (defn render []
   (when (not (= :GAME_OVER @s/game-state))
@@ -11,14 +13,32 @@
     (s/render-map)
     (s/render-entities)))
 
+(defn handle-user-update [key]
+  (case key
+    :UP (s/try-move (add-coordinates (s/get-player-coordinates) [0 -1]) :UP)
+    :DOWN (s/try-move (add-coordinates (s/get-player-coordinates) [0 1]) :DOWN)
+    :LEFT (s/try-move (add-coordinates (s/get-player-coordinates) [-1 0]) :LEFT)
+    :RIGHT (s/try-move (add-coordinates (s/get-player-coordinates) [1 0]) :RIGHT)
+    :O (s/try-open)
+    :default nil))
+
+(defn update-monsters
+  "Loop through all monsters and trigger their movement function."
+  []
+  (doseq [monster (s/all-monsters)]
+    (cond
+      (s/player-adjacent? (:x monster) (:y monster)) (s/perform-attack (:id monster) :player)
+      :else (let [[x y] (behaviour/movement monster)]
+              (s/move-entity (:id monster) x y)))))
+
 (defn register-input-listener []
   (set! (. js/document -onkeydown)
         (fn [e]
           (let [k (config/input-keys (. e -keyCode))]
             (when (not (= :GAME_OVER @s/game-state))
-              (s/handle-user-update k)
+              (handle-user-update k)
               (render)
-              (s/update-monsters)
+              (update-monsters)
               (when (not (contains? @s/entities :player)) (s/end-game))
               (render))))))
 

@@ -88,25 +88,6 @@
   (some
    #(and (= (:x %) x) (= (:y %) y) %) (all-entities)))
 
-;;;; Monster Movement
-(defmulti movement :movement)
-
-(defmethod movement :STATIC
-  [monster]
-  [(:x monster) (:y monster)])
-
-(defmethod movement :RANDOM
-  [monster]
-  (let [x (:x monster)
-        y (:y monster)
-        choices (adjacent-squares x y)
-        [x2 y2] (get choices (rand-int 4))]
-    (cond
-      (player-at? x2 y2) [x y]
-      (tile-is? :BLANK x2 y2) [x2 y2]
-      :else [x y])))
-
-
 ;;;; State Mutations
 (defn add-event [text]
   (swap! events conj text))
@@ -137,15 +118,10 @@
   (hurt-entity target (:attack (get-entity src)))
   (when (<= (:health (get-entity target)) 0) (kill-entity target)))
 
-;;;; Logic
-(defn update-monsters
-  "Loop through all monsters and trigger their movement function."
-  []
-  (doseq [monster (all-monsters)]
-    (cond
-      (player-adjacent? (:x monster) (:y monster)) (perform-attack (:id monster) :player)
-      :else (let [[x y] (movement monster)]
-              (move-entity (:id monster) x y)))))
+(defn try-open []
+  (let [[x y] (get-player-tile-infront)]
+    (when (tile-is? :DOOR x y)
+      (open-door x y))))
 
 (defn try-move [[x y] direction]
   (let [entity (get-entity-at x y)]
@@ -154,21 +130,6 @@
       (some? entity) (perform-attack :player (:id entity))
       (tile-is? :BLANK x y) (move-entity :player x y)
       :else nil)))
-
-(defn try-open []
-  (let [[x y] (get-player-tile-infront)]
-    (when (tile-is? :DOOR x y)
-      (open-door x y))))
-
-;;; INPUT
-(defn handle-user-update [key]
-  (case key
-    :UP (try-move (add-coordinates (get-player-coordinates) [0 -1]) :UP)
-    :DOWN (try-move (add-coordinates (get-player-coordinates) [0 1]) :DOWN)
-    :LEFT (try-move (add-coordinates (get-player-coordinates) [-1 0]) :LEFT)
-    :RIGHT (try-move (add-coordinates (get-player-coordinates) [1 0]) :RIGHT)
-    :O (try-open)
-    :default nil))
 
 ;;;; RENDERING
 (defn i->coordinates [i]
