@@ -42,12 +42,6 @@
 
 (def events (r/atom '()))
 
-(defn create-statue [statue-data]
-  (merge statue-data config/statue))
-
-(defn create-jelly [jelly-data]
-  (merge jelly-data config/jelly))
-
 ;;;; State Queries?
 (defn get-entity [id] (id @entities))
 

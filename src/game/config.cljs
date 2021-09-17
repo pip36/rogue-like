@@ -11,7 +11,14 @@
 (def CANVAS-HEIGHT 500)
 (def TILE-SIZE 16)
 
-;; monster types 
+;; entity types
+(def player
+  {:id :player
+   :color "green"
+   :health 100
+   :attack 5
+   :direction :UP})
+
 (def jelly
   {:type :JELLY
    :color "darkred"
