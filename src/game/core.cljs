@@ -44,15 +44,16 @@
               (render))))))
 
 (defn populate-map [m]
-  (let [map-data (mapcat (fn [row] (map (fn [tile] (case tile
+  (let [size (count m)
+        map-data (mapcat (fn [row] (map (fn [tile] (case tile
                                                      "-"  config/wall
                                                      "/"  config/door
                                                      "C"  config/closed-chest
                                                      config/blank)) row)) m)]
-    (reset! s/game-map {:size 50 :values (vec map-data)})
+    (reset! s/game-map {:size size :values (vec map-data)})
 
     (doseq [[i tile] (map-indexed vector (string/join m))]
-      (let [[x y] (i->coordinates 50 i)
+      (let [[x y] (i->coordinates size i)
             id (keyword (str (random-uuid)))]
         (case tile
           "@" (swap! s/entities assoc :player (builders/build-player {:x x
