@@ -3,7 +3,7 @@
    [reagent.core :as r]
    [game.canvas :as canvas]
    [game.config :as config]
-   [game.util :refer [monster? in?]]))
+   [game.util :refer [monster? in? adjacent-squares coordinates->i add-coordinates]]))
 
 ;;;; STATE DATA
 (def game-state (atom :PLAYING))
@@ -47,18 +47,18 @@
 
 (defn get-player [] (get-entity :player))
 
-(defn get-adjacent-squares [x y]
-  [[x (inc y)] [x (dec y)]
-   [(inc x) y] [(dec x) y]])
+(defn get-player-coordinates []
+  (let [p (get-player)]
+    [(:x p) (:y p)]))
 
 (defn player-at? [x y]
   (let [p (get-player)]
     (and (= x (:x p)) (= y (:y p)))))
 
 (defn player-adjacent? [x y]
-  (let [adjacent-squares (get-adjacent-squares x y)
+  (let [squares (adjacent-squares x y)
         p (get-player)]
-    (in? adjacent-squares [(:x p) (:y p)])))
+    (in? squares [(:x p) (:y p)])))
 
 (defn get-player-tile-infront []
   (let [p (get-player)
@@ -84,10 +84,9 @@
 (defn all-monsters []
   (filter monster? (all-entities)))
 
-(defn get-monster-at [x y]
+(defn get-entity-at [x y]
   (some
-   #(and (= (:x %) x) (= (:y %) y) %)
-   (all-monsters)))
+   #(and (= (:x %) x) (= (:y %) y) %) (all-entities)))
 
 ;;;; Monster Movement
 (defmulti movement :movement)
@@ -100,7 +99,7 @@
   [monster]
   (let [x (:x monster)
         y (:y monster)
-        choices (get-adjacent-squares x y)
+        choices (adjacent-squares x y)
         [x2 y2] (get choices (rand-int 4))]
     (cond
       (player-at? x2 y2) [x y]
@@ -129,9 +128,6 @@
   (swap! entities dissoc id)
   (add-event (str id "died")))
 
-(defn coordinates->i [size x y]
-  (+ x (* size y)))
-
 (defn open-door [x y]
   (add-event (str "Opened door"))
   (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) (blank)))))
@@ -151,19 +147,15 @@
       :else (let [[x y] (movement monster)]
               (move-entity (:id monster) x y)))))
 
-(defn new-position [x y]
-  (let [p (get-player)]
-    [(+ (:x p) x) (+ (:y p) y)]))
-
 (defn try-move [[x y] direction]
-  (let [monster (get-monster-at x y)]
+  (let [entity (get-entity-at x y)]
     (set-direction direction)
     (cond
-      (some? monster) (perform-attack :player (:id monster))
+      (some? entity) (perform-attack :player (:id entity))
       (tile-is? :BLANK x y) (move-entity :player x y)
       :else nil)))
 
-(defn try-open-door []
+(defn try-open []
   (let [[x y] (get-player-tile-infront)]
     (when (tile-is? :DOOR x y)
       (open-door x y))))
@@ -171,11 +163,11 @@
 ;;; INPUT
 (defn handle-user-update [key]
   (case key
-    :UP (try-move (new-position 0 -1) :UP)
-    :DOWN (try-move (new-position 0 1) :DOWN)
-    :LEFT (try-move (new-position -1 0) :LEFT)
-    :RIGHT (try-move (new-position 1 0) :RIGHT)
-    :O (try-open-door)
+    :UP (try-move (add-coordinates (get-player-coordinates) [0 -1]) :UP)
+    :DOWN (try-move (add-coordinates (get-player-coordinates) [0 1]) :DOWN)
+    :LEFT (try-move (add-coordinates (get-player-coordinates) [-1 0]) :LEFT)
+    :RIGHT (try-move (add-coordinates (get-player-coordinates) [1 0]) :RIGHT)
+    :O (try-open)
     :default nil))
 
 ;;;; RENDERING

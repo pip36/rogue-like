@@ -1,10 +1,37 @@
 (ns game.util)
 
-(defn player? [entity]
+(defn player?
+  "Checks if entity is a player."
+  [entity]
   (= :player (:id entity)))
 
-(defn monster? [entity]
+(defn monster?
+  "Checks if entity is a monster"
+  [entity]
   (and (some? entity) (not (player? entity))))
 
-(defn in? [coll element]
+(defn in?
+  "Checks if collection contains element"
+  [coll element]
   (some #(= element %) coll))
+
+(defn adjacent-squares
+  "Given coordinates, returns coordinates for adjacent squares.
+   
+   |_|X|_|
+   |X|P|X|
+   |_|X|_|
+   "
+  [x y]
+  [[x (inc y)] [x (dec y)]
+   [(inc x) y] [(dec x) y]])
+
+(defn coordinates->i
+  "For given size of tilemap, convert coordinates into an index"
+  [size x y]
+  (+ x (* size y)))
+
+(defn add-coordinates
+  "Returns sum of 2 coordinates"
+  [[x1 y1] [x2 y2]]
+  [(+ x1 x2) (+ y1 y2)])
