@@ -124,9 +124,9 @@
 (defn add-event [text]
   (swap! events conj text))
 
-(defn move-player [x y]
-  (swap! entities update-in [:player] conj {:x x
-                                            :y y}))
+(defn move-entity [id x y]
+  (swap! entities update-in [id] conj {:x x
+                                       :y y}))
 
 (defn set-direction [direction]
   (swap! entities update-in [:player] conj {:direction direction}))
@@ -145,9 +145,6 @@
 (defn hurt-monster [monster-id amount]
   (swap! entities update-in [monster-id :health] - amount))
 
-(defn move-monster [monster-id x y]
-  (swap! entities conj {monster-id (merge (get @entities monster-id) {:x x
-                                                                      :y y})}))
 
 (defn coordinates->i [size x y]
   (+ x (* size y)))
@@ -177,7 +174,7 @@
     (cond
       (player-adjacent? (:x monster) (:y monster)) (attack-player monster)
       :else (let [[x y] (movement monster)]
-              (move-monster (:id monster) x y)))))
+              (move-entity (:id monster) x y)))))
 
 (defn new-position [x y]
   (let [p (get-player)]
@@ -188,7 +185,7 @@
     (set-direction direction)
     (cond
       (some? monster) (attack-monster (:id monster))
-      (tile-is? :BLANK x y) (move-player x y)
+      (tile-is? :BLANK x y) (move-entity :player x y)
       :else nil)))
 
 (defn try-open-door []
