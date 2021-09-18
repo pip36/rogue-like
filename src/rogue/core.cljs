@@ -6,8 +6,8 @@
    [game.config :as config]
    [game.state :as state]))
 
-(defn stats []
-  [:div#stats
+(defn debug []
+  [:div#debug
    [:div#events
     [:p "Events"]
     (for [event @state/events]
@@ -18,6 +18,11 @@
    [:p "Inventory " (str @state/inventory)
     (for [monster (state/all-monsters)]
       [:p {:key (:id monster)} "Monster: " monster])]])
+
+(defn stats []
+  [:div#stats
+   [:p [:strong "Health: "] (-> @state/entities :player :health)]
+   [:p [:strong "Gold: "] (-> @state/inventory :gold)]])
 
 (defn game
   []
@@ -30,12 +35,13 @@
     :reagent-render
     (fn []
       [:div#container
-       [:div
+       [:div#game-container
         [:canvas {:id config/CANVAS-ID
                   :height config/CANVAS-HEIGHT
                   :width config/CANVAS-WIDTH
-                  :style {:border "1px solid black"}}]]
-       [stats]])}))
+                  :style {:border "1px solid black"}}]
+        [stats]]
+       [debug]])}))
 
 (defn mount-root []
   (d/render [game] (.getElementById js/document "app")))

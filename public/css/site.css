@@ -34,14 +34,25 @@ a:hover {
 }
 
 #container {
-  display: flex;
 }
 
-#stats {
+#debug {
   padding: 1rem;
 }
 
 #events {
   max-height: 300px;
   overflow-y: scroll;
+}
+
+#stats {
+  border: 1px solid green;
+  display: flex;
+}
+#stats p {
+  padding: 0 1rem;
+}
+
+#game-container {
+  padding: 0;
 }
