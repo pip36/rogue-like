@@ -41,8 +41,10 @@ a:hover {
 }
 
 #events {
-  max-height: 300px;
+  border: 1px solid green;
   overflow-y: scroll;
+  width: 100%;
+  max-height: 400px;
 }
 
 #stats {

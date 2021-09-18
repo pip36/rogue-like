@@ -89,20 +89,18 @@
   (swap! entities update-in [id :health] - amount))
 
 (defn kill-entity [id]
-  (swap! entities dissoc id)
-  (add-event (str id "died")))
+  (swap! entities dissoc id))
 
 (defn open-door [x y]
-  (add-event (str "Opened door"))
   (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) config/blank))))
 
 (defn open-chest [x y]
-  (add-event (str "Opened chest"))
-  (add-gold (rand-int 100))
+  (let [amount (rand-int 100)]
+    (add-event (str "You found " amount " gold in the chest!"))
+    (add-gold amount))
   (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) config/opened-chest))))
 
 (defn perform-attack [src target]
-  (add-event (str src "attacked" target))
   (hurt-entity target (:attack (get-entity src)))
   (when (<= (:health (get-entity target)) 0) (kill-entity target)))
 

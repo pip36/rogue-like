@@ -8,10 +8,6 @@
 
 (defn debug []
   [:div#debug
-   [:div#events
-    [:p "Events"]
-    (for [event @state/events]
-      [:p event])]
    [:p "------------------------------------------------"]
    [:p "Game status: " @state/game-state]
    [:p "Player: " (:player @state/entities)]
@@ -23,6 +19,11 @@
   [:div#stats
    [:p [:strong "Health: "] (-> @state/entities :player :health)]
    [:p [:strong "Gold: "] (-> @state/inventory :gold)]])
+
+(defn events []
+  [:div#events
+   (for [event @state/events]
+     [:p event])])
 
 (defn game
   []
@@ -36,10 +37,12 @@
     (fn []
       [:div#container
        [:div#game-container
-        [:canvas {:id config/CANVAS-ID
-                  :height config/CANVAS-HEIGHT
-                  :width config/CANVAS-WIDTH
-                  :style {:border "1px solid black"}}]
+        [:div {:style {:display "flex"}}
+         [:canvas {:id config/CANVAS-ID
+                   :height config/CANVAS-HEIGHT
+                   :width config/CANVAS-WIDTH
+                   :style {:border "1px solid black"}}]
+         [events]]
         [stats]]
        [debug]])}))
 
