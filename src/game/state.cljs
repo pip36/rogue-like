@@ -100,9 +100,15 @@
     (add-gold amount))
   (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) config/opened-chest))))
 
-(defn perform-attack [src target]
-  (hurt-entity target (:attack (get-entity src)))
-  (when (<= (:health (get-entity target)) 0) (kill-entity target)))
+(defn perform-attack [src-id target-id]
+  (let [src (get-entity src-id)
+        target (get-entity target-id)
+        src-name (:display-name src)
+        target-name (:display-name target)
+        damage (:attack src)]
+    (hurt-entity target-id damage)
+    (add-event (str src-name " hits " target-name " for " damage " damage!"))
+    (when (<= (:health target) 0) (kill-entity target-id))))
 
 (defn try-open []
   (let [[x y] (get-player-tile-infront)]

@@ -17,6 +17,7 @@
 ;; entity types
 (def player
   {:id :player
+   :display-name "Player Fred"
    :color "red"
    :health 100
    :attack 5
@@ -24,6 +25,7 @@
 
 (def jelly
   {:type :JELLY
+   :display-name "Jelly"
    :color "green"
    :health 10
    :attack 5
@@ -31,6 +33,7 @@
 
 (def statue
   {:type :STATUE
+   :display-name "Statue"
    :color "grey"
    :health 10
    :attack 5
