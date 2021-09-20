@@ -22,6 +22,8 @@
 
 (def events (r/atom '()))
 
+(def menu (r/atom {:state :CLOSED}))
+
 ;;;; State Queries?
 (defn get-entity [id] (id @entities))
 
@@ -68,7 +70,16 @@
   (some
    #(and (= (:x %) x) (= (:y %) y) %) (all-entities)))
 
+(defn menu-open? []
+  (= (:state @menu) :OPEN))
+
 ;;;; State Mutations
+(defn close-menu []
+  (swap! menu assoc :state :CLOSED))
+
+(defn open-menu []
+  (swap! menu assoc :state :OPEN))
+
 (defn add-event [text]
   (swap! events conj text))
 

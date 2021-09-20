@@ -17,6 +17,7 @@
 
 (defn stats []
   [:div#stats
+   [:button {:on-click (fn [] (state/open-menu))} "Menu"]
    [:p [:strong "Health: "] (-> @state/entities :player :health)]
    [:p [:strong "Gold: "] (-> @state/inventory :gold)]])
 
@@ -24,6 +25,21 @@
   [:div#events
    (for [event @state/events]
      [:p event])])
+
+(defn menu []
+  [:div#menu-root
+   [:div#menu-container
+    [:div#menu-header
+     [:h3 {:style {:margin 0}} "Items"]
+     [:button {:on-click (fn [] (state/close-menu))} "Close [x]"]]
+    [:div#menu-content
+     [:p "You don't have any items!"]]]])
+
+
+(defn overlay
+  []
+  [:div#container
+   (when (state/menu-open?) [menu])])
 
 (defn game
   []
@@ -36,6 +52,7 @@
     :reagent-render
     (fn []
       [:div#container
+       [overlay]
        [:div#game-container
         [:div {:style {:display "flex"}}
          [:canvas {:id config/CANVAS-ID
@@ -45,6 +62,7 @@
          [events]]
         [stats]]
        [debug]])}))
+
 
 (defn mount-root []
   (d/render [game] (.getElementById js/document "app")))

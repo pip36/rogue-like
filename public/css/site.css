@@ -5,6 +5,7 @@ body {
   color: #333;
   line-height: 1.5em;
   overflow: hidden;
+  margin: unset;
 }
 
 h1,
@@ -57,4 +58,25 @@ a:hover {
 
 #game-container {
   padding: 0;
+}
+
+#menu-root {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+#menu-container {
+  margin: 10rem;
+  display: block;
+  z-index: 100;
+  position: relative;
+  background: white;
+}
+#menu-header {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0;
+}
+#menu-content {
 }
