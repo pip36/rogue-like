@@ -24,7 +24,14 @@
 
 (def menu (r/atom {:state :CLOSED}))
 
+(def items (r/atom {:1 {:id :1
+                        :variant :POTION
+                        :name "Red Potion"}}))
+
 ;;;; State Queries?
+(defn all-items []
+  (map last @items))
+
 (defn get-entity [id] (id @entities))
 
 (defn get-player [] (get-entity :player))

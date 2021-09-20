@@ -33,7 +33,11 @@
      [:h3 {:style {:margin 0}} "Items"]
      [:button {:on-click (fn [] (state/close-menu))} "Close [x]"]]
     [:div#menu-content
-     [:p "You don't have any items!"]]]])
+     (let [items (state/all-items)]
+       (if (> (count items) 0)
+         (for [item items]
+           [:p (:name item)])
+         [:p "You don't have any items!"]))]]])
 
 
 (defn overlay
