@@ -9,7 +9,8 @@
                       coordinates->i
                       i->coordinates
                       add-coordinates
-                      clamp]]))
+                      clamp
+                      max-stat-keyword]]))
 
 ;;;; STATE DATA
 (def game-state (atom :PLAYING))
@@ -26,7 +27,9 @@
 
 (def items (r/atom {:1 {:id :1
                         :variant :POTION
-                        :name "Red Potion"}}))
+                        :name "Red Potion"
+                        :quantity 3
+                        :effects [{:effect :STAT-CHANGE :stat :health :amount 10}]}}))
 
 ;;;; State Queries?
 (defn all-items []
@@ -80,7 +83,24 @@
 (defn menu-open? []
   (= (:state @menu) :OPEN))
 
+(defn get-item [item-id]
+  (item-id @items))
+
 ;;;; State Mutations
+(defmulti do-effect (fn [_ effect] (:effect effect)))
+(defmethod do-effect :STAT-CHANGE [entity-id effect]
+  (swap! entities update-in [entity-id (:stat effect)]
+         (fn [old-stat] (clamp (+ old-stat (:amount effect))
+                               0
+                               (-> @entities entity-id ((max-stat-keyword effect)))))))
+
+(defn use-item [entity-id item-id]
+  (let [item (get-item item-id)
+        effects (:effects item)]
+    (swap! items update-in [item-id :quantity] dec)
+    (doseq [effect effects]
+      (do-effect entity-id effect))))
+
 (defn close-menu []
   (swap! menu assoc :state :CLOSED))
 

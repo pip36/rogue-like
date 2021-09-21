@@ -36,7 +36,7 @@
      (let [items (state/all-items)]
        (if (> (count items) 0)
          (for [item items]
-           [:p (:name item)])
+           [:p (:name item) "X" (:quantity item) [:button {:on-click (fn [] (state/use-item :player (:id item)))} "Use"]])
          [:p "You don't have any items!"]))]]])
 
 

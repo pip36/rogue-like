@@ -19,14 +19,27 @@
   {:id :player
    :display-name "Player Fred"
    :color "red"
+   :max-health 100
    :health 100
    :attack 5
    :direction :UP})
+
+(def potion
+  {:variant :POTION
+   :name "Red Potion"
+   :quantity 2
+   :effects [{:effect :STAT-CHANGE :stat :health :amount 10}]})
+
+(def stat-change-effect
+  {:effect :STAT-CHANGE
+   :stat :health
+   :amount 10})
 
 (def jelly
   {:type :JELLY
    :display-name "Jelly"
    :color "green"
+   :max-health 10
    :health 10
    :attack 5
    :movement :RANDOM})
@@ -35,6 +48,7 @@
   {:type :STATUE
    :display-name "Statue"
    :color "grey"
+   :max-health 10
    :health 10
    :attack 5
    :movement :STATIC})

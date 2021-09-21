@@ -2,10 +2,16 @@
   (:require [game.config :as config]))
 
 (defn build-statue [statue-data]
-  (merge statue-data config/statue))
+  (merge config/statue statue-data))
 
 (defn build-jelly [jelly-data]
-  (merge jelly-data config/jelly))
+  (merge config/jelly jelly-data))
 
 (defn build-player [player-data]
-  (merge player-data config/player))
+  (merge config/player player-data))
+
+(defn build-potion [potion-data]
+  (merge config/potion potion-data))
+
+(defn build-stat-change-effect [effect-data]
+  (merge config/stat-change-effect effect-data))
