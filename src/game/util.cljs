@@ -46,3 +46,9 @@
 
 (defn max-stat-keyword [stat]
   (keyword (str "max-" (name stat))))
+
+(defn normalize [num]
+  (cond
+    (neg? num) -1
+    (zero? num) 0
+    :else 1))

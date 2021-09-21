@@ -61,7 +61,7 @@
    :max-health 30
    :health 30
    :attack 5
-   :movement :RANDOM})
+   :movement :FOLLOW})
 
 ;; map tiles
 (def wall
