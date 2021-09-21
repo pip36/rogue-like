@@ -87,12 +87,16 @@
   (item-id @items))
 
 ;;;; State Mutations
+(defn update-entity-stat [entity-id stat amount]
+  (swap! entities update-in [entity-id stat]
+         (fn [old-stat] (clamp (+ old-stat amount)
+                               0
+                               (-> @entities entity-id ((max-stat-keyword stat)))))))
+
+
 (defmulti do-effect (fn [_ effect] (:effect effect)))
 (defmethod do-effect :STAT-CHANGE [entity-id effect]
-  (swap! entities update-in [entity-id (:stat effect)]
-         (fn [old-stat] (clamp (+ old-stat (:amount effect))
-                               0
-                               (-> @entities entity-id ((max-stat-keyword effect)))))))
+  (update-entity-stat entity-id (:stat effect) (:amount effect)))
 
 (defn use-item [entity-id item-id]
   (let [item (get-item item-id)
@@ -123,9 +127,6 @@
 (defn end-game []
   (reset! game-state :GAME_OVER))
 
-(defn hurt-entity [id amount]
-  (swap! entities update-in [id :health] - amount))
-
 (defn kill-entity [id]
   (swap! entities dissoc id))
 
@@ -144,7 +145,7 @@
         src-name (:display-name src)
         target-name (:display-name target)
         damage (:attack src)]
-    (hurt-entity target-id damage)
+    (update-entity-stat target-id :health (- damage))
     (add-event (str src-name " hits " target-name " for " damage " damage!"))
     (when (<= (:health target) 0) (kill-entity target-id))))
 

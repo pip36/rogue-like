@@ -44,5 +44,5 @@
 (defn clamp [x min max]
   (Math/min (Math/max x min) max))
 
-(defn max-stat-keyword [effect]
-  (keyword (str "max-" (name (:stat effect)))))
+(defn max-stat-keyword [stat]
+  (keyword (str "max-" (name stat))))
