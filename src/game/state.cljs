@@ -29,11 +29,7 @@
 
 (def menu (r/atom {:state :CLOSED}))
 
-(def items (r/atom {[1 4] [{:id :3
-                            :variant :POTION
-                            :name "Random Potion"
-                            :quantity 1
-                            :effects [{:effect :STAT-CHANGE :stat :health :amount 5}]}]}))
+(def items (r/atom {}))
 
 ;;;; State Queries?
 (defn all-items []
