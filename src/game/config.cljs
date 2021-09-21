@@ -53,6 +53,15 @@
    :attack 5
    :movement :STATIC})
 
+(def soldier
+  {:type :SOLDIER
+   :display-name "Soldier"
+   :color "blue"
+   :max-health 30
+   :health 30
+   :attack 5
+   :movement :RANDOM})
+
 ;; map tiles
 (def wall
   {:type :WALL
@@ -83,7 +92,7 @@
    "-                                                -"
    "-                      J                         -"
    "-                                                -"
-   "-                                                -"
+   "-X                                               -"
    "-C          J                         J          -"
    "-----------------------------------------------/--"
    "-C               /S                              -"

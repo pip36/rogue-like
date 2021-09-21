@@ -25,15 +25,9 @@
 
 (def menu (r/atom {:state :CLOSED}))
 
-(def items (r/atom {:1 {:id :1
-                        :variant :POTION
-                        :name "Red Potion"
-                        :quantity 3
-                        :effects [{:effect :STAT-CHANGE :stat :health :amount 10}]}}))
-
 ;;;; State Queries?
 (defn all-items []
-  (map last @items))
+  (map last (-> @entities :player :items)))
 
 (defn get-entity [id] (id @entities))
 
@@ -83,8 +77,8 @@
 (defn menu-open? []
   (= (:state @menu) :OPEN))
 
-(defn get-item [item-id]
-  (item-id @items))
+(defn get-item [entity-id item-id]
+  (-> @entities entity-id :items item-id))
 
 ;;;; State Mutations
 (defn update-entity-stat [entity-id stat amount]
@@ -99,9 +93,11 @@
   (update-entity-stat entity-id (:stat effect) (:amount effect)))
 
 (defn use-item [entity-id item-id]
-  (let [item (get-item item-id)
+  (let [item (get-item entity-id item-id)
         effects (:effects item)]
-    (swap! items update-in [item-id :quantity] dec)
+    (swap! entities update-in [entity-id :items item-id :quantity] dec)
+    (when (<= (:quantity (get-item entity-id item-id)) 0)
+      (swap! entities update-in [entity-id :items] dissoc item-id))
     (doseq [effect effects]
       (do-effect entity-id effect))))
 

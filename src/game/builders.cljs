@@ -7,6 +7,9 @@
 (defn build-jelly [jelly-data]
   (merge config/jelly jelly-data))
 
+(defn build-soldier [soldier-data]
+  (merge config/soldier soldier-data))
+
 (defn build-player [player-data]
   (merge config/player player-data))
 

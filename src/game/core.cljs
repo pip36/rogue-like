@@ -57,13 +57,21 @@
             id (keyword (str (random-uuid)))]
         (case tile
           "@" (swap! s/entities assoc :player (builders/build-player {:x x
-                                                                      :y y}))
+                                                                      :y y
+                                                                      :items {:1 {:id :1
+                                                                                  :variant :POTION
+                                                                                  :name "Red Potion"
+                                                                                  :quantity 3
+                                                                                  :effects [{:effect :STAT-CHANGE :stat :health :amount 10}]}}}))
           "J" (swap! s/entities assoc id (builders/build-jelly {:id id
                                                                 :x x
                                                                 :y y}))
           "S" (swap! s/entities assoc id (builders/build-statue {:id id
                                                                  :x x
                                                                  :y y}))
+          "X" (swap! s/entities assoc id (builders/build-soldier {:id id
+                                                                  :x x
+                                                                  :y y}))
           nil)))))
 
 (defn start-game []
