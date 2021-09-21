@@ -114,7 +114,7 @@
   (swap! menu assoc :state :OPEN))
 
 (defn add-event [text]
-  (swap! events conj text))
+  (swap! events conj [(random-uuid) text]))
 
 (defn add-gold [amount]
   (swap! inventory update-in [:gold] + amount))

@@ -77,7 +77,7 @@
                                                                   :items {:2 {:id :2
                                                                               :variant :POTION
                                                                               :name "Soldier's Potion"
-                                                                              :quantity 3
+                                                                              :quantity 1
                                                                               :effects [{:effect :STAT-CHANGE :stat :health :amount 5}]}}}))
           nil)))))
 
