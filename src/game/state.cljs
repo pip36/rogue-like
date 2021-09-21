@@ -147,7 +147,7 @@
         damage (:attack src)]
     (update-entity-stat target-id :health (- damage))
     (add-event (str src-name " hits " target-name " for " damage " damage!"))
-    (when (<= (:health target) 0) (kill-entity target-id))))
+    (when (<= (:health (get-entity target-id)) 0) (kill-entity target-id))))
 
 (defn try-open []
   (let [[x y] (get-player-tile-infront)]
