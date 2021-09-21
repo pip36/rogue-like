@@ -25,6 +25,12 @@
 
 (def menu (r/atom {:state :CLOSED}))
 
+(def items (r/atom {[1 4] [{:id :2
+                            :variant :POTION
+                            :name "Random Potion"
+                            :quantity 1
+                            :effects [{:effect :STAT-CHANGE :stat :health :amount 5}]}]}))
+
 ;;;; State Queries?
 (defn all-items []
   (map last (-> @entities :player :items)))
@@ -123,8 +129,14 @@
 (defn end-game []
   (reset! game-state :GAME_OVER))
 
+(defn place-items-on-tile [item-list [x y]]
+  (swap! items update-in [[x y]] concat item-list))
+
 (defn kill-entity [id]
-  (swap! entities dissoc id))
+  (let [entity (-> @entities id)]
+    (when (not-empty (:items entity))
+      (place-items-on-tile (vec (map last (:items entity))) [(:x entity) (:y entity)]))
+    (swap! entities dissoc id)))
 
 (defn open-door [x y]
   (swap! game-map update-in [:values] (fn [tiles] (assoc tiles (coordinates->i (:size @game-map) x y) config/blank))))
@@ -200,3 +212,13 @@
 (defn render-entities []
   (doseq [entity (all-entities)]
     (render-entity entity)))
+
+(defn render-items []
+  (let [[player-x player-y] (get-player-coordinates)
+        [x-offset y-offset] (calculate-scroll-offset-from-player player-x player-y)]
+    (doseq [[[x y] item] @items]
+      (when (not-empty item) (canvas/draw-rect
+                              (* config/TILE-SIZE (- x x-offset))
+                              (* config/TILE-SIZE (- y y-offset))
+                              config/TILE-SIZE config/TILE-SIZE
+                              "cornflowerblue")))))

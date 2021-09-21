@@ -12,6 +12,7 @@
   (when (not (= :GAME_OVER @s/game-state))
     (canvas/clear)
     (s/render-map)
+    (s/render-items)
     (s/render-entities)))
 
 (defn handle-user-update [key]
@@ -71,7 +72,12 @@
                                                                  :y y}))
           "X" (swap! s/entities assoc id (builders/build-soldier {:id id
                                                                   :x x
-                                                                  :y y}))
+                                                                  :y y
+                                                                  :items {:2 {:id :2
+                                                                              :variant :POTION
+                                                                              :name "Soldier's Potion"
+                                                                              :quantity 3
+                                                                              :effects [{:effect :STAT-CHANGE :stat :health :amount 5}]}}}))
           nil)))))
 
 (defn start-game []
