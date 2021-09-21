@@ -45,44 +45,10 @@
               (when (not (contains? @s/entities :player)) (s/end-game))
               (render))))))
 
-(defn populate-map [m]
-  (let [size (count m)
-        map-data (mapcat (fn [row] (map (fn [tile] (case tile
-                                                     "-"  config/wall
-                                                     "/"  config/door
-                                                     "C"  config/closed-chest
-                                                     config/blank)) row)) m)]
-    (reset! s/game-map {:size size :values (vec map-data)})
 
-    (doseq [[i tile] (map-indexed vector (string/join m))]
-      (let [[x y] (i->coordinates size i)
-            id (keyword (str (random-uuid)))]
-        (case tile
-          "@" (swap! s/entities assoc :player (builders/build-player {:x x
-                                                                      :y y
-                                                                      :items {:1 {:id :1
-                                                                                  :variant :POTION
-                                                                                  :name "Red Potion"
-                                                                                  :quantity 3
-                                                                                  :effects [{:effect :STAT-CHANGE :stat :health :amount 10}]}}}))
-          "J" (swap! s/entities assoc id (builders/build-jelly {:id id
-                                                                :x x
-                                                                :y y}))
-          "S" (swap! s/entities assoc id (builders/build-statue {:id id
-                                                                 :x x
-                                                                 :y y}))
-          "X" (swap! s/entities assoc id (builders/build-soldier {:id id
-                                                                  :x x
-                                                                  :y y
-                                                                  :items {:2 {:id :2
-                                                                              :variant :POTION
-                                                                              :name "Soldier's Potion"
-                                                                              :quantity 1
-                                                                              :effects [{:effect :STAT-CHANGE :stat :health :amount 5}]}}}))
-          nil)))))
 
 (defn start-game []
   (canvas/init-ctx)
   (register-input-listener)
-  (populate-map config/map1)
+  (s/populate-map config/map1)
   (render))

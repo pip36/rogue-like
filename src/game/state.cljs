@@ -1,8 +1,10 @@
 (ns game.state
   (:require
+   [clojure.string :as string]
    [reagent.core :as r]
    [game.canvas :as canvas]
    [game.config :as config]
+   [game.builders :as builders]
    [game.util :refer [monster?
                       in?
                       adjacent-squares
@@ -13,9 +15,11 @@
                       max-stat-keyword]]))
 
 ;;;; STATE DATA
-(def game-state (atom :PLAYING))
+(def game-state (r/atom :PLAYING))
 
-(def game-map (atom {}))
+(def game-data (r/atom {:level 1}))
+
+(def game-map (r/atom {}))
 
 (def entities (r/atom  {}))
 
@@ -87,6 +91,49 @@
   (-> @entities entity-id :items item-id))
 
 ;;;; State Mutations
+(defn populate-map [m]
+  (let [size (count m)
+        map-data (mapcat (fn [row] (map (fn [tile] (case tile
+                                                     "-"  config/wall
+                                                     "/"  config/door
+                                                     "C"  config/closed-chest
+                                                     "+"  config/stairs
+                                                     config/blank)) row)) m)]
+    (reset! game-map {:size size :values (vec map-data)})
+
+    (doseq [[i tile] (map-indexed vector (string/join m))]
+      (let [[x y] (i->coordinates size i)
+            id (keyword (str (random-uuid)))]
+        (case tile
+          "@" (swap! entities assoc :player (builders/build-player {:x x
+                                                                    :y y
+                                                                    :items {:1 {:id :1
+                                                                                :variant :POTION
+                                                                                :name "Red Potion"
+                                                                                :quantity 3
+                                                                                :effects [{:effect :STAT-CHANGE :stat :health :amount 10}]}}}))
+          "J" (swap! entities assoc id (builders/build-jelly {:id id
+                                                              :x x
+                                                              :y y}))
+          "S" (swap! entities assoc id (builders/build-statue {:id id
+                                                               :x x
+                                                               :y y}))
+          "X" (swap! entities assoc id (builders/build-soldier {:id id
+                                                                :x x
+                                                                :y y
+                                                                :items {:2 {:id :2
+                                                                            :variant :POTION
+                                                                            :name "Soldier's Potion"
+                                                                            :quantity 1
+                                                                            :effects [{:effect :STAT-CHANGE :stat :health :amount 5}]}}}))
+          nil)))))
+
+(defn next-level []
+  (swap! game-data update-in [:level] inc)
+  (reset! entities {:player (:player @entities)})
+  (populate-map config/map1))
+
+
 (defn update-entity-stat [entity-id stat amount]
   (swap! entities update-in [entity-id stat]
          (fn [old-stat] (clamp (+ old-stat amount)
@@ -168,6 +215,7 @@
     (set-direction direction)
     (cond
       (some? entity) (perform-attack :player (:id entity))
+      (tile-is? :STAIRS x y) (next-level)
       (tile-is? :BLANK x y) (move-entity :player x y)
       :else nil)))
 

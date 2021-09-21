@@ -84,9 +84,13 @@
   {:type :OPENED-CHEST
    :color "black"})
 
+(def stairs
+  {:type :STAIRS
+   :color "purple"})
+
 (def map1
   ["--------------------------------------------------"
-   "-@                                              c-"
+   "-@                 +                            c-"
    "-                                J               -"
    "-                                                -"
    "-           J                         J          -"
