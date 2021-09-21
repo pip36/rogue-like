@@ -20,6 +20,7 @@
    [:button {:on-click (fn [] (state/open-menu))} "Menu"]
    [:p [:strong "Health: "] (-> @state/entities :player :health)]
    [:p [:strong "Gold: "] (-> @state/inventory :gold)]
+   [:p [:strong "Food: "] (-> @state/entities :player :food)]
    [:p [:strong "Level: "] (-> @state/game-data :level)]])
 
 (defn events []

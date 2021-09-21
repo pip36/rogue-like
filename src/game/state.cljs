@@ -131,7 +131,6 @@
                                0
                                (-> @entities entity-id ((max-stat-keyword stat)))))))
 
-
 (defmulti do-effect (fn [_ effect] (:effect effect)))
 (defmethod do-effect :STAT-CHANGE [entity-id effect]
   (update-entity-stat entity-id (:stat effect) (:amount effect)))
@@ -223,6 +222,13 @@
 
 (defn try-pickup []
   (pick-up-item :player))
+
+(defn trigger-hunger [entity-id]
+  (let [entity (get-entity entity-id)]
+    (update-entity-stat entity-id :food -1)
+    (when (<= (:food (get-entity entity-id)) 0)
+      (kill-entity entity-id)
+      (add-event (str (:display-name entity) " died from hunger.")))))
 
 ;;;; RENDERING
 (defn coordinates->pixels [[x y]]

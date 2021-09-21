@@ -23,7 +23,8 @@
     :RIGHT (s/try-move (add-coordinates (s/get-player-coordinates) [1 0]) :RIGHT)
     :O (s/try-open)
     :P (s/try-pickup)
-    :default nil))
+    :default nil)
+  (s/trigger-hunger :player))
 
 (defn update-monsters
   "Loop through all monsters and trigger their movement function."

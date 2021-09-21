@@ -23,6 +23,8 @@
    :max-health 100
    :health 100
    :attack 5
+   :max-food 100
+   :food 100
    :direction :UP})
 
 (def potion
