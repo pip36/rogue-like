@@ -25,7 +25,7 @@
 
 (def menu (r/atom {:state :CLOSED}))
 
-(def items (r/atom {[1 4] [{:id :2
+(def items (r/atom {[1 4] [{:id :3
                             :variant :POTION
                             :name "Random Potion"
                             :quantity 1
@@ -170,6 +170,20 @@
       (some? entity) (perform-attack :player (:id entity))
       (tile-is? :BLANK x y) (move-entity :player x y)
       :else nil)))
+
+(defn pick-up-item [entity-id]
+  (let [entity (get-entity entity-id)
+        x (:x entity)
+        y (:y entity)
+        item-list (@items [x y])
+        item-map (reduce (fn [acc x]
+                           (assoc acc (:id x) x)) {} item-list)]
+    (swap! entities update-in [entity-id :items] merge item-map)
+    (swap! items dissoc [x y])
+    (add-event (str "Picked up " (map :name item-list)))))
+
+(defn try-pickup []
+  (pick-up-item :player))
 
 ;;;; RENDERING
 (defn coordinates->pixels [[x y]]

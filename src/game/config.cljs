@@ -4,7 +4,8 @@
                  40 :DOWN
                  37 :LEFT
                  39 :RIGHT
-                 79 :O})
+                 79 :O
+                 80 :P})
 
 (def CANVAS-ID "gameCanvas")
 (def CANVAS-WIDTH 400)

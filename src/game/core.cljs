@@ -22,6 +22,7 @@
     :LEFT (s/try-move (add-coordinates (s/get-player-coordinates) [-1 0]) :LEFT)
     :RIGHT (s/try-move (add-coordinates (s/get-player-coordinates) [1 0]) :RIGHT)
     :O (s/try-open)
+    :P (s/try-pickup)
     :default nil))
 
 (defn update-monsters
