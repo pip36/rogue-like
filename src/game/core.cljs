@@ -50,5 +50,9 @@
 (defn start-game []
   (canvas/init-ctx)
   (register-input-listener)
-  (s/populate-map config/map1)
+  (s/populate-map config/map1 {:items {:1 {:id :1
+                                           :variant :POTION
+                                           :name "Red Potion"
+                                           :quantity 3
+                                           :effects [{:effect :STAT-CHANGE :stat :health :amount 10}]}}})
   (render))

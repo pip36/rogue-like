@@ -91,7 +91,7 @@
   (-> @entities entity-id :items item-id))
 
 ;;;; State Mutations
-(defn populate-map [m]
+(defn populate-map [m player-data]
   (let [size (count m)
         map-data (mapcat (fn [row] (map (fn [tile] (case tile
                                                      "-"  config/wall
@@ -105,13 +105,8 @@
       (let [[x y] (i->coordinates size i)
             id (keyword (str (random-uuid)))]
         (case tile
-          "@" (swap! entities assoc :player (builders/build-player {:x x
-                                                                    :y y
-                                                                    :items {:1 {:id :1
-                                                                                :variant :POTION
-                                                                                :name "Red Potion"
-                                                                                :quantity 3
-                                                                                :effects [{:effect :STAT-CHANGE :stat :health :amount 10}]}}}))
+          "@" (swap! entities assoc :player (builders/build-player (merge player-data {:x x
+                                                                                       :y y})))
           "J" (swap! entities assoc id (builders/build-jelly {:id id
                                                               :x x
                                                               :y y}))
@@ -131,7 +126,7 @@
 (defn next-level []
   (swap! game-data update-in [:level] inc)
   (reset! entities {:player (:player @entities)})
-  (populate-map config/map1))
+  (populate-map config/map1 (:player @entities)))
 
 
 (defn update-entity-stat [entity-id stat amount]
