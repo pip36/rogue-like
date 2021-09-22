@@ -1,6 +1,7 @@
 (ns tests.state-test
-  (:require [cljs.test :refer (deftest run-tests are is)]
+  (:require [cljs.test :refer (deftest is)]
             [game.state :as state]
+            [game.actions :as actions]
             [game.builders :as builders]))
 
 (deftest use-stat-change-potion-that-heals-player
@@ -9,7 +10,7 @@
 
     (reset! state/entities {:player (builders/build-player {:health 50 :items {:1 heal-potion}})})
 
-    (state/use-item :player :1)
+    (actions/use-item :player :1)
     (is (= (state/get-player) (builders/build-player {:health 60 :items {:1 (merge heal-potion {:quantity 2})}})))))
 
 (deftest stat-change-cant-exceed-max-health
@@ -18,7 +19,7 @@
 
     (reset! state/entities {:player (builders/build-player {:health 50 :max-health 100 :items {:1 heal-potion}})})
 
-    (state/use-item :player :1)
+    (actions/use-item :player :1)
     (is (= (state/get-player) (builders/build-player {:health 100 :max-health 100 :items {:1 (merge heal-potion {:quantity 2})}})))))
 
 (deftest using-last-item-removes-it-from-items
@@ -27,7 +28,7 @@
 
     (reset! state/entities {:player (builders/build-player {:health 50 :items {:1 heal-potion}})})
 
-    (state/use-item :player :1)
+    (actions/use-item :player :1)
     (is (= (state/get-player) (builders/build-player {:health 60 :items {}})))))
 
 
