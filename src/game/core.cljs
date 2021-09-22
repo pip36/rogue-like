@@ -5,34 +5,34 @@
    [game.config :as config]
    [game.entity-behaviours :as behaviour]
    [game.util :refer [add-coordinates]]
-   [game.rendering :refer [render-map render-items render-entities]]))
+   [game.rendering :refer [render-map render-dropped-items render-entities]]))
 
 (defn render []
   (when (not (= :GAME_OVER @s/game-state))
     (canvas/clear)
     (render-map)
-    (render-items)
+    (render-dropped-items)
     (render-entities)))
 
 (defn handle-user-update [key]
   (case key
-    :UP (s/try-move (add-coordinates (s/get-player-coordinates) [0 -1]) :UP)
-    :DOWN (s/try-move (add-coordinates (s/get-player-coordinates) [0 1]) :DOWN)
-    :LEFT (s/try-move (add-coordinates (s/get-player-coordinates) [-1 0]) :LEFT)
-    :RIGHT (s/try-move (add-coordinates (s/get-player-coordinates) [1 0]) :RIGHT)
-    :O (s/try-open)
-    :P (s/try-pickup)
+    :UP (s/move-action (add-coordinates (s/get-player-coordinates) [0 -1]) :UP)
+    :DOWN (s/move-action (add-coordinates (s/get-player-coordinates) [0 1]) :DOWN)
+    :LEFT (s/move-action (add-coordinates (s/get-player-coordinates) [-1 0]) :LEFT)
+    :RIGHT (s/move-action (add-coordinates (s/get-player-coordinates) [1 0]) :RIGHT)
+    :O (s/open-action)
+    :P (s/pickup-action :player)
     :default nil)
-  (s/trigger-hunger :player))
+  (s/hunger-trigger :player))
 
 (defn update-monsters
   "Loop through all monsters and trigger their movement function."
   []
   (doseq [monster (s/all-monsters)]
     (cond
-      (s/player-adjacent? (:x monster) (:y monster)) (s/perform-attack (:id monster) :player)
+      (s/player-adjacent? (:x monster) (:y monster)) (s/attack-action (:id monster) :player)
       :else (let [[x y] (behaviour/movement monster)]
-              (s/move-entity (:id monster) x y)))))
+              (s/set-entity-position (:id monster) x y)))))
 
 (defn register-input-listener []
   (set! (. js/document -onkeydown)

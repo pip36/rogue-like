@@ -4,7 +4,7 @@
             [game.state :refer [game-map
                                 get-player-coordinates
                                 all-entities
-                                items]]
+                                dropped-items]]
             [game.util :refer [clamp
                                i->coordinates
                                add-coordinates]]))
@@ -50,10 +50,10 @@
   (doseq [entity (all-entities)]
     (render-entity entity)))
 
-(defn render-items []
+(defn render-dropped-items []
   (let [[player-x player-y] (get-player-coordinates)
         [x-offset y-offset] (calculate-scroll-offset-from-player player-x player-y)]
-    (doseq [[[x y] item] @items]
+    (doseq [[[x y] item] @dropped-items]
       (when (not-empty item) (canvas/draw-rect
                               (* config/TILE-SIZE (- x x-offset))
                               (* config/TILE-SIZE (- y y-offset))
