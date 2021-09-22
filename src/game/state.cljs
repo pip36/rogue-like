@@ -210,27 +210,12 @@
 ;; Potion Effects ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defmulti do-effect
-  "Triggers a potions specific effect...
-   
-   :STAT-CHANGE - change a numeric entity stat by an amount"
-  (fn [_ effect] (:effect effect)))
-
-(defmethod do-effect :STAT-CHANGE [entity-id effect]
-  (update-entity-stat entity-id (:stat effect) (:amount effect)))
-
 (defn consume-item [entity-id item-id]
   (swap! entities update-in [entity-id :items item-id :quantity] dec)
   (when (<= (:quantity (get-item entity-id item-id)) 0)
     (swap! entities update-in [entity-id :items] dissoc item-id)))
 
-(defn trigger-item-effects [entity-id item-id]
-  (doseq [effect (:effects (get-item entity-id item-id))]
-    (do-effect entity-id effect)))
 
-(defn use-item [entity-id item-id]
-  (trigger-item-effects entity-id item-id)
-  (consume-item entity-id item-id))
 
 ;; Actions ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

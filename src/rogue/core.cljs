@@ -4,7 +4,8 @@
    [reagent.dom :as d]
    [game.core :as g]
    [game.config :as config]
-   [game.state :as state]))
+   [game.state :as state]
+   [game.actions :as actions]))
 
 (defn debug []
   [:div#debug
@@ -38,7 +39,7 @@
      (let [items (state/all-items)]
        (if (> (count items) 0)
          (for [item items]
-           [:p {:key (:id item)} (:name item) "X" (:quantity item) [:button {:on-click (fn [] (state/use-item :player (:id item)))} "Use"]])
+           [:p {:key (:id item)} (:name item) "X" (:quantity item) [:button {:on-click (fn [] (actions/use-item :player (:id item)))} "Use"]])
          [:p "You don't have any items!"]))]]])
 
 
