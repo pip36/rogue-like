@@ -3,10 +3,8 @@
    [game.canvas :as canvas]
    [game.state :as s]
    [game.config :as config]
-   [game.builders :as builders]
    [game.entity-behaviours :as behaviour]
-   [game.util :refer [add-coordinates i->coordinates]]
-   [clojure.string :as string]))
+   [game.util :refer [add-coordinates]]))
 
 (defn render []
   (when (not (= :GAME_OVER @s/game-state))
