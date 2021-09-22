@@ -4,14 +4,15 @@
    [game.state :as s]
    [game.config :as config]
    [game.entity-behaviours :as behaviour]
-   [game.util :refer [add-coordinates]]))
+   [game.util :refer [add-coordinates]]
+   [game.rendering :refer [render-map render-items render-entities]]))
 
 (defn render []
   (when (not (= :GAME_OVER @s/game-state))
     (canvas/clear)
-    (s/render-map)
-    (s/render-items)
-    (s/render-entities)))
+    (render-map)
+    (render-items)
+    (render-entities)))
 
 (defn handle-user-update [key]
   (case key
